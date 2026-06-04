@@ -107,3 +107,29 @@ O proximo passo recomendado antes da TASK-060 e corrigir o fluxo de Servicos:
 - abrir `ServiceForm` em modal;
 - salvar servico via `serviceRepository.create`;
 - permitir editar e inativar servicos, conforme FEATURE-004.
+
+## Atualizacao da correcao
+
+Data: 2026-06-04
+
+O bloqueio de abertura do formulario de servicos foi corrigido:
+
+- `/services` agora usa uma rota explicita com `createRequest`;
+- o botao `Novo servico` abre o modal `ServiceForm`;
+- `ServicesPage` passou a criar, editar e inativar servicos via
+  `serviceRepository`;
+- a tela exibe mensagens de sucesso/erro e invalida a query `services` apos
+  mutacoes.
+
+Revalidacao feita:
+
+- modal `Novo servico` abriu pela interface;
+- campos `Nome`, `Valor padrao`, `Duracao`, `Percentual` e `Servico ativo`
+  ficaram disponiveis no DOM;
+- validacoes tecnicas passaram com `npm run test`, `npm run lint` e
+  `npm run build`.
+
+Observacao: a digitacao automatizada no browser da sessao falhou por limite do
+ambiente de automacao (`Browser Use virtual clipboard is not installed`), entao
+o envio real do formulario deve ser conferido manualmente ou em uma sessao de
+browser com digitacao disponivel.
