@@ -32,6 +32,7 @@ import type { AppointmentFormData } from './appointment.schema'
 
 type AppointmentsPageProps = {
   createRequest?: number
+  openOnMount?: boolean
 }
 
 type AppointmentFormMode =
@@ -119,9 +120,13 @@ function toFilterOptions(
   ]
 }
 
-export function AppointmentsPage({ createRequest }: AppointmentsPageProps) {
+export function AppointmentsPage({
+  createRequest,
+  openOnMount = false,
+}: AppointmentsPageProps) {
   const queryClient = useQueryClient()
   const previousCreateRequestRef = useRef(createRequest)
+  const shouldOpenOnMountRef = useRef(openOnMount)
   const [dateFilter, setDateFilter] = useState('')
   const [patientFilter, setPatientFilter] = useState('all')
   const [professionalFilter, setProfessionalFilter] = useState('all')
@@ -206,6 +211,14 @@ export function AppointmentsPage({ createRequest }: AppointmentsPageProps) {
   })
 
   useEffect(() => {
+    if (shouldOpenOnMountRef.current) {
+      setFormMode({ type: 'create' })
+      setMutationError(undefined)
+      shouldOpenOnMountRef.current = false
+      previousCreateRequestRef.current = createRequest
+      return
+    }
+
     if (
       createRequest !== undefined &&
       createRequest !== previousCreateRequestRef.current

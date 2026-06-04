@@ -1,6 +1,6 @@
 import { Download, Plus, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router'
 import { AppLayout } from '../components/layout/AppLayout'
 import { AppointmentsPage } from '../features/appointments/AppointmentsPage'
 import { LoginPage } from '../features/auth/LoginPage'
@@ -10,6 +10,10 @@ import { PatientsPage } from '../features/patients/PatientsPage'
 import { ProfessionalsPage } from '../features/professionals/ProfessionalsPage'
 import { ReportsPage } from '../features/reports/ReportsPage'
 import { ServicesPage } from '../features/services/ServicesPage'
+import {
+  createAppointmentNavigationState,
+  shouldOpenAppointmentFormFromState,
+} from './appointmentNavigation'
 
 const routes = [
   { path: '/dashboard', label: 'Dashboard', actionLabel: 'Novo atendimento' },
@@ -140,7 +144,33 @@ function ProfessionalsRoute() {
   )
 }
 
+function DashboardRoute() {
+  const navigate = useNavigate()
+
+  return (
+    <ProtectedRoute>
+      <AppLayout
+        title="Dashboard"
+        action={
+          <PageAction
+            label="Novo atendimento"
+            isReport={false}
+            onClick={() =>
+              navigate('/appointments', {
+                state: createAppointmentNavigationState(),
+              })
+            }
+          />
+        }
+      >
+        <DashboardPage />
+      </AppLayout>
+    </ProtectedRoute>
+  )
+}
+
 function AppointmentsRoute() {
+  const location = useLocation()
   const [createRequest, setCreateRequest] = useState(0)
 
   return (
@@ -155,7 +185,10 @@ function AppointmentsRoute() {
           />
         }
       >
-        <AppointmentsPage createRequest={createRequest} />
+        <AppointmentsPage
+          createRequest={createRequest}
+          openOnMount={shouldOpenAppointmentFormFromState(location.state)}
+        />
       </AppLayout>
     </ProtectedRoute>
   )
@@ -208,12 +241,17 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/dashboard" element={<DashboardRoute />} />
       <Route path="/appointments" element={<AppointmentsRoute />} />
       <Route path="/patients" element={<PatientsRoute />} />
       <Route path="/professionals" element={<ProfessionalsRoute />} />
       <Route path="/services" element={<ServicesRoute />} />
       <Route path="/reports" element={<ReportsRoute />} />
-      {routes.filter((route) => route.path !== '/services').map((route) => (
+      {routes
+        .filter(
+          (route) => route.path !== '/dashboard' && route.path !== '/services',
+        )
+        .map((route) => (
         <Route
           key={route.path}
           path={route.path}
