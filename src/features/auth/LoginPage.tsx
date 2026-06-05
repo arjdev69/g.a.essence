@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { InstallPwaButton } from '../pwa/InstallPwaButton'
 import { loginSchema, type LoginFormData } from './login.schema'
 import { useLogin } from './useLogin'
 
@@ -23,6 +24,9 @@ export function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-stone-50 px-4 py-10 text-zinc-950">
+      <div className="fixed right-4 top-4">
+        <InstallPwaButton />
+      </div>
       <section className="w-full max-w-sm rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
         <div>
           <p className="text-sm font-medium text-emerald-700">G.A Essencia</p>

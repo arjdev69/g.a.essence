@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { LogoutButton } from '../../features/auth/LogoutButton'
+import { InstallPwaButton } from '../../features/pwa/InstallPwaButton'
 import { MainMenu } from './MainMenu'
 
 type AppLayoutProps = {
@@ -36,7 +37,10 @@ export function AppLayout({ title, action, children }: AppLayoutProps) {
             </p>
             <h2 className="truncate text-xl font-semibold">{title}</h2>
           </div>
-          {action ? <div className="flex shrink-0 justify-end">{action}</div> : null}
+          <div className="flex shrink-0 items-center justify-end gap-2">
+            <InstallPwaButton />
+            {action}
+          </div>
         </header>
 
         <nav
