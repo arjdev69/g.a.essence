@@ -22,7 +22,9 @@ import type {
   AppointmentDTO,
   AppointmentStatus,
 } from '../../domain/appointments/appointment.types'
+import { prepareAppointmentCalendarInput } from '../../domain/calendar'
 import { appointmentRepository } from '../../repositories/appointment.repository'
+import { uploadAppointmentCalendarFile } from '../../repositories/calendar.repository'
 import { patientRepository } from '../../repositories/patient.repository'
 import { professionalRepository } from '../../repositories/professional.repository'
 import { serviceRepository } from '../../repositories/service.repository'
@@ -67,38 +69,137 @@ function formatOptional(value: string | null | undefined) {
   return value?.trim() ? value : '-'
 }
 
-function AppointmentActions({
+function getAppointmentSubject(appointment: AppointmentDTO) {
+  return appointment.patientName?.trim() || 'atendimento'
+}
+
+function CalendarCalendarButton({
   appointment,
-  isMutating,
-  onEdit,
+  className,
+  isDisabled,
+  onClick,
 }: {
   appointment: AppointmentDTO
+  className?: string
+  isDisabled: boolean
+  onClick: (appointment: AppointmentDTO) => void
+}) {
+  const calendarValidation = prepareAppointmentCalendarInput(appointment)
+  const isCalendarDisabled = isDisabled || !calendarValidation.ok
+
+  return (
+    <Button
+      aria-label={`Adicionar atendimento de ${getAppointmentSubject(appointment)} ao calendario`}
+      className={className}
+      disabled={isCalendarDisabled}
+      icon={null}
+      onClick={() => onClick(appointment)}
+      size="sm"
+      title={
+        calendarValidation.ok
+          ? 'Adicionar ao calendario'
+          : 'Dados do atendimento incompletos'
+      }
+      variant="secondary"
+    >
+      Adicionar ao calendario
+    </Button>
+  )
+}
+
+function AppointmentActions({
+  appointment,
+  isCalendarExporting,
+  isMutating,
+  onEdit,
+  onCalendarClick,
+}: {
+  appointment: AppointmentDTO
+  isCalendarExporting: boolean
   isMutating: boolean
+  onCalendarClick: (appointment: AppointmentDTO) => void
   onEdit: (appointment: AppointmentDTO) => void
 }) {
+  const subject = getAppointmentSubject(appointment)
+  const isDisabled = isMutating || isCalendarExporting
+
   return (
     <div className="flex items-center justify-end gap-2">
       <Button
-        aria-label={`Editar atendimento de ${formatOptional(
-          appointment.patientName,
-        )}`}
+        aria-label={`Editar atendimento de ${subject}`}
+        className="shrink-0"
+        disabled={isDisabled}
         icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
-        disabled={isMutating}
         onClick={() => onEdit(appointment)}
-        size="icon"
-        title="Editar"
+        size="sm"
+        title="Editar atendimento"
         variant="ghost"
       />
+      <CalendarCalendarButton
+        appointment={appointment}
+        className="shrink-0"
+        isDisabled={isDisabled}
+        onClick={onCalendarClick}
+      />
       <Button
-        aria-label={`Remover atendimento de ${formatOptional(
-          appointment.patientName,
-        )}`}
+        aria-label={`Remover atendimento de ${subject}`}
+        className="shrink-0"
         disabled
         icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
-        size="icon"
-        title="Remover"
+        size="sm"
+        title="Remover atendimento"
         variant="danger"
+      >
+        Remover
+      </Button>
+    </div>
+  )
+}
+
+function AppointmentCardActions({
+  appointment,
+  isCalendarExporting,
+  isMutating,
+  onCalendarClick,
+  onEdit,
+}: {
+  appointment: AppointmentDTO
+  isCalendarExporting: boolean
+  isMutating: boolean
+  onCalendarClick: (appointment: AppointmentDTO) => void
+  onEdit: (appointment: AppointmentDTO) => void
+}) {
+  const subject = getAppointmentSubject(appointment)
+  const isDisabled = isMutating || isCalendarExporting
+
+  return (
+    <div className="mt-3 space-y-2">
+      <CalendarCalendarButton
+        appointment={appointment}
+        className="w-full"
+        isDisabled={isDisabled}
+        onClick={onCalendarClick}
       />
+
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          aria-label={`Editar atendimento de ${subject}`}
+          disabled={isDisabled}
+          icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
+          onClick={() => onEdit(appointment)}
+          size="icon"
+          title="Editar atendimento"
+          variant="ghost"
+        />
+        <Button
+          aria-label={`Remover atendimento de ${subject}`}
+          disabled
+          icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
+          size="icon"
+          title="Remover atendimento"
+          variant="danger"
+        />
+      </div>
     </div>
   )
 }
@@ -135,6 +236,13 @@ export function AppointmentsPage({
     useState<AppointmentStatusFilter>('all')
   const [formMode, setFormMode] = useState<AppointmentFormMode | null>(null)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
+  const [calendarFeedbackMessage, setCalendarFeedbackMessage] = useState<
+    string | null
+  >(null)
+  const [calendarErrorMessage, setCalendarErrorMessage] = useState<
+    string | null
+  >(null)
+  const [isCalendarExporting, setIsCalendarExporting] = useState(false)
   const [mutationError, setMutationError] = useState<string | undefined>()
 
   const appointmentFilters = {
@@ -257,6 +365,23 @@ export function AppointmentsPage({
     await createMutation.mutateAsync(input)
   }
 
+  async function handleCalendarClick(appointment: AppointmentDTO) {
+    setCalendarFeedbackMessage(null)
+    setCalendarErrorMessage(null)
+    setIsCalendarExporting(true)
+
+    try {
+      const publicUrl = await uploadAppointmentCalendarFile(appointment)
+      window.location.assign(publicUrl)
+    } catch {
+      setCalendarErrorMessage(
+        'Nao foi possivel gerar o calendario. Tente novamente.',
+      )
+    } finally {
+      setIsCalendarExporting(false)
+    }
+  }
+
   const isLoadingFormOptions =
     isLoadingPatientOptions ||
     isLoadingProfessionalOptions ||
@@ -264,9 +389,33 @@ export function AppointmentsPage({
   const hasFormOptionsError =
     patientOptionsError || professionalOptionsError || serviceOptionsError
   const isFormSubmitting = createMutation.isPending || updateMutation.isPending
+  const hasCalendarFeedback =
+    calendarFeedbackMessage !== null || calendarErrorMessage !== null
 
   return (
     <div className="space-y-4">
+      {hasCalendarFeedback ? (
+        <Card
+          className={
+            calendarErrorMessage
+              ? 'border-red-200 bg-red-50 p-4'
+              : 'border-emerald-200 bg-emerald-50 p-4'
+          }
+          role="status"
+          aria-live="polite"
+        >
+          <p
+            className={
+              calendarErrorMessage
+                ? 'text-sm font-medium text-red-800'
+                : 'text-sm font-medium text-emerald-800'
+            }
+          >
+            {calendarErrorMessage ?? calendarFeedbackMessage}
+          </p>
+        </Card>
+      ) : null}
+
       {feedbackMessage ? (
         <Card className="border-emerald-200 bg-emerald-50 p-4">
           <p className="text-sm font-medium text-emerald-800">
@@ -382,16 +531,18 @@ export function AppointmentsPage({
                     <TableCell>
                       {formatCurrencyBRL(appointment.professionalGainValue)}
                     </TableCell>
-                    <TableCell>
-                      <AppointmentStatusBadge status={appointment.status} />
-                    </TableCell>
-                    <TableCell>
-                      <AppointmentActions
-                        appointment={appointment}
-                        isMutating={isFormSubmitting}
-                        onEdit={handleEditAppointment}
-                      />
-                    </TableCell>
+                      <TableCell>
+                        <AppointmentStatusBadge status={appointment.status} />
+                      </TableCell>
+                      <TableCell>
+                          <AppointmentActions
+                          appointment={appointment}
+                          isCalendarExporting={isCalendarExporting}
+                          isMutating={isFormSubmitting}
+                          onCalendarClick={handleCalendarClick}
+                          onEdit={handleEditAppointment}
+                        />
+                      </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -448,13 +599,13 @@ export function AppointmentsPage({
                   </div>
                 </dl>
 
-                <div className="mt-3 flex justify-end">
-                  <AppointmentActions
-                    appointment={appointment}
-                    isMutating={isFormSubmitting}
-                    onEdit={handleEditAppointment}
-                  />
-                </div>
+                <AppointmentCardActions
+                  appointment={appointment}
+                  isCalendarExporting={isCalendarExporting}
+                  isMutating={isFormSubmitting}
+                  onCalendarClick={handleCalendarClick}
+                  onEdit={handleEditAppointment}
+                />
               </Card>
             ))}
           </div>
