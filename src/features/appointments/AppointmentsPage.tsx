@@ -113,11 +113,13 @@ function AppointmentActions({
   isMutating,
   onEdit,
   onCalendarClick,
+  onRemove,
 }: {
   appointment: AppointmentDTO
   isCalendarExporting: boolean
   isMutating: boolean
   onCalendarClick: (appointment: AppointmentDTO) => void
+  onRemove: (appointment: AppointmentDTO) => void
   onEdit: (appointment: AppointmentDTO) => void
 }) {
   const subject = getAppointmentSubject(appointment)
@@ -144,11 +146,12 @@ function AppointmentActions({
       <Button
         aria-label={`Remover atendimento de ${subject}`}
         className="shrink-0"
-        disabled
+        disabled={isDisabled}
         icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
         size="sm"
         title="Remover atendimento"
         variant="danger"
+        onClick={() => onRemove(appointment)}
       >
         Remover
       </Button>
@@ -162,11 +165,13 @@ function AppointmentCardActions({
   isMutating,
   onCalendarClick,
   onEdit,
+  onRemove,
 }: {
   appointment: AppointmentDTO
   isCalendarExporting: boolean
   isMutating: boolean
   onCalendarClick: (appointment: AppointmentDTO) => void
+  onRemove: (appointment: AppointmentDTO) => void
   onEdit: (appointment: AppointmentDTO) => void
 }) {
   const subject = getAppointmentSubject(appointment)
@@ -193,11 +198,12 @@ function AppointmentCardActions({
         />
         <Button
           aria-label={`Remover atendimento de ${subject}`}
-          disabled
+          disabled={isDisabled}
           icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
           size="icon"
           title="Remover atendimento"
           variant="danger"
+          onClick={() => onRemove(appointment)}
         />
       </div>
     </div>
@@ -318,6 +324,20 @@ export function AppointmentsPage({
     },
   })
 
+  const removeMutation = useMutation({
+    mutationFn: (id: string) => appointmentRepository.remove(id),
+    onError: () => {
+      setFeedbackMessage(null)
+      setCalendarFeedbackMessage(null)
+      setCalendarErrorMessage('Nao foi possivel remover. Tente novamente.')
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['appointments'] })
+      setFeedbackMessage('Atendimento removido com sucesso.')
+      setCalendarErrorMessage(null)
+    },
+  })
+
   useEffect(() => {
     if (shouldOpenOnMountRef.current) {
       setFormMode({ type: 'create' })
@@ -365,6 +385,18 @@ export function AppointmentsPage({
     await createMutation.mutateAsync(input)
   }
 
+  async function handleRemoveAppointment(appointment: AppointmentDTO) {
+    const shouldRemove = window.confirm(
+      `Remover o atendimento de ${getAppointmentSubject(appointment)}?`,
+    )
+
+    if (!shouldRemove) {
+      return
+    }
+
+    await removeMutation.mutateAsync(appointment.id)
+  }
+
   async function handleCalendarClick(appointment: AppointmentDTO) {
     setCalendarFeedbackMessage(null)
     setCalendarErrorMessage(null)
@@ -388,7 +420,10 @@ export function AppointmentsPage({
     isLoadingServiceOptions
   const hasFormOptionsError =
     patientOptionsError || professionalOptionsError || serviceOptionsError
-  const isFormSubmitting = createMutation.isPending || updateMutation.isPending
+  const isFormSubmitting =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending
   const hasCalendarFeedback =
     calendarFeedbackMessage !== null || calendarErrorMessage !== null
 
@@ -541,6 +576,7 @@ export function AppointmentsPage({
                           isMutating={isFormSubmitting}
                           onCalendarClick={handleCalendarClick}
                           onEdit={handleEditAppointment}
+                          onRemove={handleRemoveAppointment}
                         />
                       </TableCell>
                   </TableRow>
@@ -605,6 +641,7 @@ export function AppointmentsPage({
                   isMutating={isFormSubmitting}
                   onCalendarClick={handleCalendarClick}
                   onEdit={handleEditAppointment}
+                  onRemove={handleRemoveAppointment}
                 />
               </Card>
             ))}
