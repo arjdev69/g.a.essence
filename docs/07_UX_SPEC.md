@@ -1,14 +1,14 @@
-# G.A Essência
+# G.A Essencia
 
-Documentação para desenvolvimento do MVP usando Spec Driven Development com apoio do Codex.
+Documentacao para desenvolvimento do MVP usando Spec Driven Development com apoio do Codex.
 
-Produto: G.A Essência
-Objetivo: sistema de agendamento com cálculo automático da taxa da clínica e ganho do profissional.
+Produto: G.A Essencia
+Objetivo: sistema de agendamento com calculo automatico da taxa da clinica e ganho do profissional.
 Stack alvo: React + TypeScript + Vite + Tailwind + Supabase.
 
-# 07 — UX Spec
+# 07 - UX Spec
 
-## 1. Princípio
+## 1. Principio
 
 O sistema deve ser mais simples que uma planilha.
 
@@ -27,70 +27,75 @@ O sistema deve ser mais simples que uma planilha.
 Desktop:
 - sidebar;
 - header;
-- conteúdo em cards e tabelas.
+- conteudo em cards e tabelas.
 
 Mobile:
 - header;
 - cards;
-- botão de ação principal;
+- botao de acao principal;
 - evitar tabela horizontal.
 
 ## 4. Dashboard
 
 Cards:
-- faturamento do mês;
-- receita da clínica;
+- faturamento do mes;
+- receita da clinica;
 - ganho profissional;
 - atendimentos realizados.
 
-Seções:
+Secoes:
 - atendimentos de hoje;
-- próximos atendimentos.
+- proximos atendimentos.
 
 ## 5. Agenda
 
 Desktop:
-Data | Hora | Paciente | Serviço | Profissional | Valor | Clínica | Profissional | Status | Ações
+Data | Hora | Paciente | Servico | Profissional | Valor | Clinica | Profissional | Status | Acoes
 
 Mobile:
-Card com paciente, serviço, data/hora, valor e status.
+Card com paciente, servico, data/hora, valor e status.
 
-## 6. Formulário de atendimento
+Acoes secundarias por atendimento:
+- editar;
+- adicionar ao calendario;
+- remover, quando aplicavel.
+
+## 6. Formulario de atendimento
 
 Ordem:
 1. paciente;
 2. profissional;
-3. serviço;
+3. servico;
 4. data;
 5. hora;
 6. status;
 7. valor;
 8. percentual;
-9. observação.
+9. observacao.
 
-Área de cálculo sempre visível:
+Area de calculo sempre visivel:
 - valor total;
-- clínica;
+- clinica;
 - profissional.
 
 ## 7. Pacientes
 
-Lista com nome, telefone e ações.
-Detalhe com histórico.
+Lista com nome, telefone e acoes.
+Detalhe com historico.
 
-## 8. Serviços
+## 8. Servicos
 
 Mostrar badge `Brinde` quando valor for 0.
 
-## 9. Relatórios
+## 9. Relatorios
 
 Filtros:
-- mês;
+- mes;
 - ano;
 - profissional;
-- serviço.
+- servico.
 
-Botões:
+Botoes:
 - exportar CSV;
 - limpar filtros.
 
@@ -100,7 +105,7 @@ Sucesso:
 `Atendimento criado com sucesso.`
 
 Erro:
-`Não foi possível salvar. Tente novamente.`
+`Nao foi possivel salvar. Tente novamente.`
 
 Empty:
 `Nenhum atendimento encontrado.`
@@ -108,6 +113,31 @@ Empty:
 ## 11. Acessibilidade
 
 - inputs com label;
-- botões com texto;
-- foco visível;
+- botoes com texto;
+- foco visivel;
 - contraste adequado.
+
+## 12. Acao de Calendario
+
+Objetivo:
+- permitir que o usuario exporte o atendimento para o calendario sem sair da tela.
+
+Desktop:
+- botao secundario na coluna de acoes da tabela;
+- label visivel `Adicionar ao calendario`;
+- icone de calendario antes do texto;
+- ordem das acoes: editar, adicionar ao calendario, remover.
+
+Mobile:
+- botao no rodape do card do atendimento;
+- label visivel, nao apenas icone;
+- area de toque generosa;
+- se houver muitas acoes, mover para menu secundario.
+
+Estados:
+- normal;
+- hover;
+- foco;
+- desabilitado;
+- sucesso;
+- erro.

@@ -188,7 +188,7 @@ export const appointmentRepository = {
     let query = supabaseClient
       .from('appointments')
       .select(appointmentSelect)
-      .order('appointment_date', { ascending: false })
+      .order('appointment_date', { ascending: true })
       .order('appointment_time', { ascending: true })
 
     if (filters.date) {
