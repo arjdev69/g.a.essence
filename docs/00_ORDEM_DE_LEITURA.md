@@ -27,6 +27,12 @@ Use estes documentos nesta ordem:
 15. `15_DEMO.md` - roteiro de demo do produto.
 16. `16_CALENDAR_SPRINT.md` - sprint de requisitos para adicionar ao calendario.
 17. `17_CALENDAR_IMPLEMENTATION.md` - plano tecnico de implementacao do calendario.
+18. `18_PRODUCTS_PLAN.md` - plano de expansao da nova secao de Produtos.
+19. `19_PRODUCTS_REQUIREMENTS.md` - requisitos funcionais, nao funcionais e regras de negocio.
+20. `20_PRODUCTS_SPECIFICATION.md` - especificacao tecnica da secao de Produtos.
+21. `21_PRODUCTS_UX_SPEC.md` - UX, layout e comportamentos de tela.
+22. `22_PRODUCTS_LAYOUT.md` - layout visual detalhado da secao de Produtos.
+23. `23_PRODUCTS_IMAGE_SPEC.md` - especificacao da imagem opcional do produto.
 
 ## Fluxo recomendado
 

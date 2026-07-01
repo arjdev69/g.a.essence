@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agenda-ga-v1'
+const CACHE_NAME = 'agenda-ga-v2'
 const APP_SHELL = [
   '/',
   '/favicon.svg',
@@ -69,5 +69,34 @@ self.addEventListener('fetch', (event) => {
         return response
       })
     }),
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+
+  const targetUrl = event.notification.data?.url || '/appointments'
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ includeUncontrolled: true, type: 'window' })
+      .then((clientList) => {
+        const appClient = clientList.find((client) => {
+          const clientUrl = new URL(client.url)
+          return clientUrl.origin === self.location.origin
+        })
+
+        if (appClient) {
+          appClient.focus()
+
+          if ('navigate' in appClient) {
+            return appClient.navigate(targetUrl)
+          }
+
+          return undefined
+        }
+
+        return self.clients.openWindow(targetUrl)
+      }),
   )
 })

@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { LogoutButton } from '../../features/auth/LogoutButton'
+import { AppointmentNotificationsButton } from '../../features/pwa/AppointmentNotificationsButton'
+import { AppointmentNotificationsScheduler } from '../../features/pwa/AppointmentNotificationsScheduler'
 import { InstallPwaButton } from '../../features/pwa/InstallPwaButton'
 import { MainMenu } from './MainMenu'
 
@@ -12,6 +14,7 @@ type AppLayoutProps = {
 export function AppLayout({ title, action, children }: AppLayoutProps) {
   return (
     <div className="flex min-h-screen bg-stone-50 text-zinc-950">
+      <AppointmentNotificationsScheduler />
       <aside className="hidden w-[260px] shrink-0 flex-col border-r border-stone-200 bg-white lg:flex">
         <div className="border-b border-stone-200 p-6">
           <h1 className="text-xl font-semibold text-emerald-700">
@@ -38,6 +41,7 @@ export function AppLayout({ title, action, children }: AppLayoutProps) {
             <h2 className="truncate text-xl font-semibold">{title}</h2>
           </div>
           <div className="flex shrink-0 items-center justify-end gap-2">
+            <AppointmentNotificationsButton />
             <InstallPwaButton />
             {action}
           </div>
