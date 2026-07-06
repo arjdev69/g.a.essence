@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:integration": "vitest run src/tests/productsRpcRls.integration.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
