@@ -3,6 +3,7 @@ import {
   Briefcase,
   CalendarDays,
   LayoutDashboard,
+  Package,
   UserCheck,
   Users,
 } from 'lucide-react'
@@ -14,6 +15,7 @@ const navigationItems = [
   { path: '/patients', label: 'Pacientes', icon: Users },
   { path: '/professionals', label: 'Profissionais', icon: UserCheck },
   { path: '/services', label: 'Serviços', icon: Briefcase },
+  { path: '/products', label: 'Produtos', icon: Package },
   { path: '/reports', label: 'Relatórios', icon: BarChart3 },
 ]
 

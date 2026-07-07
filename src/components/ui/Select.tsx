@@ -23,6 +23,14 @@ export function Select({
 }: SelectProps) {
   const selectId = id ?? props.name
   const errorId = error && selectId ? `${selectId}-error` : undefined
+  const {
+    ['aria-describedby']: ariaDescribedBy,
+    ...restProps
+  } =
+    props as SelectHTMLAttributes<HTMLSelectElement> & {
+      'aria-describedby'?: string
+    }
+  const describedBy = [ariaDescribedBy, errorId].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="space-y-2">
@@ -32,7 +40,7 @@ export function Select({
         </label>
       ) : null}
       <select
-        aria-describedby={errorId}
+        aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         className={cn(
           'h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500',
@@ -40,7 +48,7 @@ export function Select({
           className,
         )}
         id={selectId}
-        {...props}
+        {...restProps}
       >
         {options
           ? options.map((option) => (

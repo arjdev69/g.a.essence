@@ -9,6 +9,14 @@ type InputProps = InputHTMLAttributes<HTMLInputElement> & {
 export function Input({ className, error, id, label, ...props }: InputProps) {
   const inputId = id ?? props.name
   const errorId = error && inputId ? `${inputId}-error` : undefined
+  const {
+    ['aria-describedby']: ariaDescribedBy,
+    ...restProps
+  } =
+    props as InputHTMLAttributes<HTMLInputElement> & {
+      'aria-describedby'?: string
+    }
+  const describedBy = [ariaDescribedBy, errorId].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="space-y-2">
@@ -18,7 +26,7 @@ export function Input({ className, error, id, label, ...props }: InputProps) {
         </label>
       ) : null}
       <input
-        aria-describedby={errorId}
+        aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         className={cn(
           'h-10 w-full rounded-lg border border-stone-300 bg-white px-3 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500',
@@ -26,7 +34,7 @@ export function Input({ className, error, id, label, ...props }: InputProps) {
           className,
         )}
         id={inputId}
-        {...props}
+        {...restProps}
       />
       {error ? (
         <p className="text-sm text-red-700" id={errorId} role="alert">

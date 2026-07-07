@@ -33,6 +33,17 @@ Implemente apenas a task solicitada.
 
 Não antecipe funcionalidades.
 
+## Expansões autorizadas
+
+A seção de Produtos é uma expansão pós-MVP autorizada quando a task fizer
+referência explícita aos documentos `18_PRODUCTS_PLAN.md` a
+`28_PRODUCTS_API_CONTRACTS.md`.
+
+Nesse caso, `estoque`, `vendas simples de produtos`, `recebimento por forma de
+pagamento`, `receita bruta de produtos` e `lucro bruto de produtos` fazem parte
+do escopo autorizado da seção de Produtos, sem alterar as regras financeiras de
+atendimentos.
+
 ## Proibido
 
 - Redux;
