@@ -233,6 +233,7 @@ beforeEach(() => {
   vi.mocked(patientRepository.list).mockResolvedValue(patients)
   vi.mocked(professionalRepository.list).mockResolvedValue(professionals)
   vi.mocked(serviceRepository.list).mockResolvedValue(services)
+  vi.mocked(appointmentRepository.remove).mockResolvedValue(undefined)
 })
 
 afterEach(() => {
@@ -387,5 +388,58 @@ describe('appointments mobile filters', () => {
       container.querySelector<HTMLSelectElement>('#appointment-status')?.value,
     ).toBe('all')
     expect(container.textContent).toContain('2 atendimentos encontrados')
+  })
+
+  it('mantem Editar visivel e confirma a remocao pelo menu do card', async () => {
+    const container = renderAppointments()
+    await settleQueries()
+
+    expect(
+      container.querySelector(
+        '[aria-label="Editar atendimento de Maria Silva"]',
+      ),
+    ).not.toBeNull()
+
+    const actionsTrigger = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Mais ações para Maria Silva"]',
+    )
+    act(() => actionsTrigger?.click())
+
+    const menu = container.querySelector('[role="menu"]')
+    expect(actionsTrigger?.getAttribute('aria-expanded')).toBe('true')
+    expect(menu?.textContent).toContain('Adicionar ao calendario')
+    expect(menu?.textContent).toContain('Remover')
+
+    const removeItem = menu?.querySelector<HTMLButtonElement>(
+      '[role="menuitem"]:last-child',
+    )
+    act(() => removeItem?.click())
+
+    expect(container.textContent).toContain(
+      'Esta ação não pode ser desfeita.',
+    )
+    const cancelButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Cancelar',
+    )
+    act(() => cancelButton?.click())
+    expect(container.querySelector('[role="dialog"]')).toBeNull()
+
+    act(() => actionsTrigger?.click())
+    const reopenedMenu = container.querySelector('[role="menu"]')
+    const reopenedRemoveItem = reopenedMenu?.querySelector<HTMLButtonElement>(
+      '[role="menuitem"]:last-child',
+    )
+    act(() => reopenedRemoveItem?.click())
+    const confirmButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Remover atendimento',
+    )
+    act(() => confirmButton?.click())
+    await settleQueries()
+
+    expect(vi.mocked(appointmentRepository.remove)).toHaveBeenCalledWith(
+      'appointment-1',
+    )
+    expect(container.querySelector('[role="dialog"]')).toBeNull()
+    expect(container.textContent).toContain('Atendimento removido com sucesso.')
   })
 })

@@ -1,5 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, Pencil, RotateCcw, Trash2, X } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  Pencil,
+  RotateCcw,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
@@ -137,11 +145,13 @@ function CalendarCalendarButton({
   className,
   isDisabled,
   onClick,
+  role,
 }: {
   appointment: AppointmentDTO
   className?: string
   isDisabled: boolean
   onClick: (appointment: AppointmentDTO) => void
+  role?: 'menuitem'
 }) {
   const calendarValidation = prepareAppointmentCalendarInput(appointment)
   const isCalendarDisabled = isDisabled || !calendarValidation.ok
@@ -153,6 +163,7 @@ function CalendarCalendarButton({
       disabled={isCalendarDisabled}
       icon={null}
       onClick={() => onClick(appointment)}
+      role={role}
       size="sm"
       title={
         calendarValidation.ok
@@ -235,35 +246,64 @@ function AppointmentCardActions({
 }) {
   const subject = getAppointmentSubject(appointment)
   const isDisabled = isMutating || isCalendarExporting
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <div className="mt-3 space-y-2">
-      <CalendarCalendarButton
-        appointment={appointment}
-        className="w-full"
-        isDisabled={isDisabled}
-        onClick={onCalendarClick}
-      />
+    <div className="mt-4 flex items-center justify-between gap-3 border-t border-stone-100 pt-3">
+      <Button
+        aria-label={`Editar atendimento de ${subject}`}
+        className="min-h-11 flex-1 justify-start px-3 sm:flex-none"
+        disabled={isDisabled}
+        icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
+        onClick={() => onEdit(appointment)}
+        title="Editar atendimento"
+        variant="ghost"
+      >
+        Editar
+      </Button>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="relative">
         <Button
-          aria-label={`Editar atendimento de ${subject}`}
+          aria-expanded={isMenuOpen}
+          aria-haspopup="menu"
+          aria-label={`Mais ações para ${subject}`}
           disabled={isDisabled}
-          icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
-          onClick={() => onEdit(appointment)}
+          icon={<MoreHorizontal className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => setIsMenuOpen((current) => !current)}
           size="icon"
-          title="Editar atendimento"
+          title="Mais ações"
           variant="ghost"
         />
-        <Button
-          aria-label={`Remover atendimento de ${subject}`}
-          disabled={isDisabled}
-          icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
-          size="icon"
-          title="Remover atendimento"
-          variant="danger"
-          onClick={() => onRemove(appointment)}
-        />
+
+        {isMenuOpen ? (
+          <div
+            className="absolute right-0 top-full z-20 mt-2 w-56 rounded-lg border border-stone-200 bg-white p-1 shadow-lg"
+            role="menu"
+          >
+            <CalendarCalendarButton
+              appointment={appointment}
+              className="w-full justify-start rounded-md"
+              isDisabled={isDisabled}
+              onClick={(selectedAppointment) => {
+                setIsMenuOpen(false)
+                onCalendarClick(selectedAppointment)
+              }}
+              role="menuitem"
+            />
+            <Button
+              className="w-full justify-start rounded-md"
+              icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
+              onClick={() => {
+                setIsMenuOpen(false)
+                onRemove(appointment)
+              }}
+              role="menuitem"
+              variant="danger"
+            >
+              Remover
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   )
@@ -325,6 +365,11 @@ export function AppointmentsPage({
   >(null)
   const [isCalendarExporting, setIsCalendarExporting] = useState(false)
   const [mutationError, setMutationError] = useState<string | undefined>()
+  const [appointmentToRemove, setAppointmentToRemove] =
+    useState<AppointmentDTO | null>(null)
+  const [removeErrorMessage, setRemoveErrorMessage] = useState<string | null>(
+    null,
+  )
 
   const selectedMonthRange = getAppointmentMonthRange(
     monthSelection.year,
@@ -435,12 +480,14 @@ export function AppointmentsPage({
     onError: () => {
       setFeedbackMessage(null)
       setCalendarFeedbackMessage(null)
-      setCalendarErrorMessage('Nao foi possivel remover. Tente novamente.')
+      setRemoveErrorMessage('Nao foi possivel remover. Tente novamente.')
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['appointments'] })
       setFeedbackMessage('Atendimento removido com sucesso.')
       setCalendarErrorMessage(null)
+      setRemoveErrorMessage(null)
+      setAppointmentToRemove(null)
     },
   })
 
@@ -571,16 +618,26 @@ export function AppointmentsPage({
     await createMutation.mutateAsync(input)
   }
 
-  async function handleRemoveAppointment(appointment: AppointmentDTO) {
-    const shouldRemove = window.confirm(
-      `Remover o atendimento de ${getAppointmentSubject(appointment)}?`,
-    )
+  function handleRemoveAppointment(appointment: AppointmentDTO) {
+    setRemoveErrorMessage(null)
+    setAppointmentToRemove(appointment)
+  }
 
-    if (!shouldRemove) {
+  async function handleConfirmRemove() {
+    if (!appointmentToRemove) {
       return
     }
 
-    await removeMutation.mutateAsync(appointment.id)
+    await removeMutation.mutateAsync(appointmentToRemove.id)
+  }
+
+  function handleCloseRemoveConfirmation() {
+    if (removeMutation.isPending) {
+      return
+    }
+
+    setRemoveErrorMessage(null)
+    setAppointmentToRemove(null)
   }
 
   async function handleCalendarClick(appointment: AppointmentDTO) {
@@ -1120,6 +1177,51 @@ export function AppointmentsPage({
             }
           />
         ) : null}
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(appointmentToRemove)}
+        onClose={handleCloseRemoveConfirmation}
+        title="Remover atendimento"
+      >
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-zinc-700">
+            Remover o atendimento de{' '}
+            <strong className="font-semibold text-zinc-950">
+              {appointmentToRemove
+                ? getAppointmentSubject(appointmentToRemove)
+                : ''}
+            </strong>{' '}
+            em{' '}
+            {appointmentToRemove
+              ? `${formatDate(appointmentToRemove.appointmentDate)} às ${formatTime(appointmentToRemove.appointmentTime)}`
+              : ''}
+            ? Esta ação não pode ser desfeita.
+          </p>
+
+          {removeErrorMessage ? (
+            <p className="text-sm text-red-700" role="alert">
+              {removeErrorMessage}
+            </p>
+          ) : null}
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button
+              disabled={removeMutation.isPending}
+              onClick={handleCloseRemoveConfirmation}
+              variant="secondary"
+            >
+              Cancelar
+            </Button>
+            <Button
+              disabled={removeMutation.isPending}
+              onClick={() => void handleConfirmRemove()}
+              variant="danger"
+            >
+              {removeMutation.isPending ? 'Removendo...' : 'Remover atendimento'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   )
