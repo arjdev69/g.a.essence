@@ -66,6 +66,7 @@ function ProfessionalActions({
     <div className="flex items-center justify-end gap-2">
       <Button
         aria-label={`Editar ${professional.name}`}
+        className="min-h-11 min-w-11"
         disabled={isMutating}
         icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
         onClick={() => onEdit(professional)}
@@ -76,6 +77,7 @@ function ProfessionalActions({
       {professional.active ? (
         <Button
           aria-label={`Inativar ${professional.name}`}
+          className="min-h-11 min-w-11"
           disabled={isMutating}
           icon={<UserX className="h-4 w-4" aria-hidden="true" />}
           onClick={() => onDeactivate(professional)}
@@ -220,7 +222,7 @@ export function ProfessionalsPage({ createRequest }: ProfessionalsPageProps) {
           />
           <Input
             aria-label="Buscar profissional por nome"
-            className="pl-9"
+            className="min-h-11 pl-9 text-base sm:text-sm"
             name="professionalSearch"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar profissional"
@@ -230,6 +232,7 @@ export function ProfessionalsPage({ createRequest }: ProfessionalsPageProps) {
         </div>
         <Select
           aria-label="Filtrar profissionais por status"
+          className="min-h-11 text-base sm:text-sm"
           name="activeFilter"
           onChange={(event) => setActiveFilter(event.target.value as ActiveFilter)}
           options={[

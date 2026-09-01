@@ -61,6 +61,7 @@ function ServiceActions({
     <div className="flex items-center justify-end gap-2">
       <Button
         aria-label={`Editar ${service.name}`}
+        className="min-h-11 min-w-11"
         disabled={isMutating}
         icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
         onClick={() => onEdit(service)}
@@ -71,6 +72,7 @@ function ServiceActions({
       {service.active ? (
         <Button
           aria-label={`Inativar ${service.name}`}
+          className="min-h-11 min-w-11"
           disabled={isMutating}
           icon={<UserX className="h-4 w-4" aria-hidden="true" />}
           onClick={() => onDeactivate(service)}
@@ -217,7 +219,7 @@ export function ServicesPage({ createRequest }: ServicesPageProps) {
           />
           <Input
             aria-label="Buscar servico por nome"
-            className="pl-9"
+            className="min-h-11 pl-9 text-base sm:text-sm"
             name="serviceSearch"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar servico"
@@ -227,6 +229,7 @@ export function ServicesPage({ createRequest }: ServicesPageProps) {
         </div>
         <Select
           aria-label="Filtrar servicos por status"
+          className="min-h-11 text-base sm:text-sm"
           name="activeFilter"
           onChange={(event) => setActiveFilter(event.target.value as ActiveFilter)}
           options={[

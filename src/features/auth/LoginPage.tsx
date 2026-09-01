@@ -51,7 +51,7 @@ export function LoginPage() {
               id="email"
               type="email"
               autoComplete="email"
-              className="h-11 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20"
+              className="min-h-11 w-full rounded-md border border-stone-300 bg-white px-3 text-base text-zinc-950 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 sm:text-sm"
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? 'email-error' : undefined}
               {...register('email')}
@@ -74,7 +74,7 @@ export function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              className="h-11 w-full rounded-md border border-stone-300 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20"
+              className="min-h-11 w-full rounded-md border border-stone-300 bg-white px-3 text-base text-zinc-950 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 sm:text-sm"
               aria-invalid={Boolean(errors.password)}
               aria-describedby={errors.password ? 'password-error' : undefined}
               {...register('password')}
@@ -89,7 +89,7 @@ export function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-11 w-full rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-stone-400"
+            className="min-h-11 w-full rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-stone-400"
           >
             Entrar
           </button>

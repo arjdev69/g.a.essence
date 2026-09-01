@@ -57,6 +57,7 @@ function PatientActions({
     <div className="flex items-center justify-end gap-2">
       <Button
         aria-label={`Editar ${patient.name}`}
+        className="min-h-11 min-w-11"
         disabled={isMutating}
         icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
         onClick={() => onEdit(patient)}
@@ -66,6 +67,7 @@ function PatientActions({
       />
       <Button
         aria-label={`Historico de ${patient.name}`}
+        className="min-h-11 min-w-11"
         disabled
         icon={<Clock className="h-4 w-4" aria-hidden="true" />}
         size="icon"
@@ -75,6 +77,7 @@ function PatientActions({
       {patient.active ? (
         <Button
           aria-label={`Inativar ${patient.name}`}
+          className="min-h-11 min-w-11"
           disabled={isMutating}
           icon={<UserX className="h-4 w-4" aria-hidden="true" />}
           onClick={() => onDeactivate(patient)}
@@ -218,7 +221,7 @@ export function PatientsPage({ createRequest }: PatientsPageProps) {
           />
           <Input
             aria-label="Buscar paciente por nome"
-            className="pl-9"
+            className="min-h-11 pl-9 text-base sm:text-sm"
             name="patientSearch"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar paciente"
@@ -228,6 +231,7 @@ export function PatientsPage({ createRequest }: PatientsPageProps) {
         </div>
         <Select
           aria-label="Filtrar pacientes por status"
+          className="min-h-11 text-base sm:text-sm"
           name="activeFilter"
           onChange={(event) => setActiveFilter(event.target.value as ActiveFilter)}
           options={[

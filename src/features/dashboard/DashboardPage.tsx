@@ -101,7 +101,7 @@ function SummaryCard({
   value: string
 }) {
   return (
-    <Card className="p-5">
+    <Card className="p-4 sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-zinc-500">{label}</p>
@@ -121,7 +121,7 @@ function UpcomingAppointments({
   appointments: AppointmentDTO[]
 }) {
   return (
-    <Card className="p-5">
+    <Card className="p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-zinc-950">
@@ -182,7 +182,7 @@ function UpcomingAppointments({
 
 function TodayAppointments({ appointments }: { appointments: AppointmentDTO[] }) {
   return (
-    <Card className="p-5">
+    <Card className="p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-zinc-950">
@@ -288,7 +288,7 @@ export function DashboardPage() {
       ) : null}
 
       {!isLoading && !error ? (
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-4">
           <SummaryCard
             icon={<CircleDollarSign className="h-5 w-5" aria-hidden="true" />}
             label="Faturamento do mes"
