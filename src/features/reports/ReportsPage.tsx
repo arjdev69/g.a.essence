@@ -9,11 +9,11 @@ import {
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '../../components/ui/Badge'
+import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { LoadingState } from '../../components/ui/LoadingState'
-import { Button } from '../../components/ui/Button'
 import { Select } from '../../components/ui/Select'
 import {
   Table,
@@ -31,6 +31,7 @@ import {
 import { appointmentRepository } from '../../repositories/appointment.repository'
 import { professionalRepository } from '../../repositories/professional.repository'
 import { serviceRepository } from '../../repositories/service.repository'
+import { downloadFile } from '../../services/export/downloadFile'
 import { getAppointmentMonthRange } from '../../utils/appointmentPeriod'
 import { formatCurrencyBRL } from '../../utils/formatCurrencyBRL'
 
@@ -40,6 +41,11 @@ type ReportsPageProps = {
 }
 
 type ReportStatusFilter = AppointmentStatus | 'all'
+
+type ExportFeedback = {
+  message: string
+  type: 'error' | 'success'
+}
 
 function getCurrentReportDate(date = new Date()) {
   return {
@@ -169,29 +175,20 @@ function SummaryMetric({
   )
 }
 
-function downloadCsv(filename: string, content: string) {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-
-  anchor.href = url
-  anchor.download = filename
-  anchor.click()
-  URL.revokeObjectURL(url)
-}
-
 export function ReportsPage({
   clearFiltersRequest,
   exportRequest,
 }: ReportsPageProps) {
   const previousClearFiltersRequestRef = useRef(clearFiltersRequest)
-  const previousExportRequestRef = useRef(exportRequest)
   const currentDate = useMemo(() => getCurrentReportDate(), [])
   const [month, setMonth] = useState(currentDate.month)
   const [year, setYear] = useState(currentDate.year)
   const [professionalId, setProfessionalId] = useState('all')
   const [serviceId, setServiceId] = useState('all')
   const [status, setStatus] = useState<ReportStatusFilter>('all')
+  const [exportRetryRequest, setExportRetryRequest] = useState(0)
+  const [exportFeedback, setExportFeedback] =
+    useState<ExportFeedback | null>(null)
   const yearOptions = useMemo(
     () => getYearOptions(Number(currentDate.year)),
     [currentDate.year],
@@ -217,7 +214,13 @@ export function ReportsPage({
     setProfessionalId('all')
     setServiceId('all')
     setStatus('all')
+    setExportFeedback(null)
   }, [currentDate.month, currentDate.year])
+
+  const previousExportAttemptRef = useRef({
+    request: exportRequest,
+    retry: exportRetryRequest,
+  })
 
   useEffect(() => {
     if (
@@ -283,18 +286,70 @@ export function ReportsPage({
   useEffect(() => {
     if (
       exportRequest === undefined ||
-      exportRequest === previousExportRequestRef.current ||
-      isLoadingReport ||
-      hasReportError
+      (exportRequest === previousExportAttemptRef.current.request &&
+        exportRetryRequest === previousExportAttemptRef.current.retry)
     ) {
-      previousExportRequestRef.current = exportRequest
       return
     }
 
+    if (isLoadingReport) {
+      return
+    }
+
+    previousExportAttemptRef.current = {
+      request: exportRequest,
+      retry: exportRetryRequest,
+    }
+
+    let isCurrentAttempt = true
+    const announceFeedback = (feedback: ExportFeedback) => {
+      queueMicrotask(() => {
+        if (isCurrentAttempt) {
+          setExportFeedback(feedback)
+        }
+      })
+    }
+
+    if (hasReportError) {
+      announceFeedback({
+        message: 'Nao foi possivel exportar enquanto o relatorio esta indisponivel.',
+        type: 'error',
+      })
+      return () => {
+        isCurrentAttempt = false
+      }
+    }
+
     const csv = createMonthlyReportCsv(reportInput, summary)
-    downloadCsv(csv.filename, csv.content)
-    previousExportRequestRef.current = exportRequest
-  }, [exportRequest, hasReportError, isLoadingReport, reportInput, summary])
+
+    try {
+      downloadFile({
+        content: csv.content,
+        filename: csv.filename,
+        mimeType: 'text/csv;charset=utf-8',
+      })
+      announceFeedback({
+        message: `CSV exportado: ${csv.filename}`,
+        type: 'success',
+      })
+    } catch {
+      announceFeedback({
+        message: 'Nao foi possivel gerar o arquivo CSV.',
+        type: 'error',
+      })
+    }
+
+    return () => {
+      isCurrentAttempt = false
+    }
+  }, [
+    exportRequest,
+    exportRetryRequest,
+    hasReportError,
+    isLoadingReport,
+    reportInput,
+    summary,
+  ])
 
   return (
     <div className="space-y-4">
@@ -385,6 +440,32 @@ export function ReportsPage({
           />
         ) : null}
       </section>
+
+      {exportFeedback ? (
+        <div
+          aria-live="polite"
+          className={
+            exportFeedback.type === 'error'
+              ? 'flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 sm:flex-row sm:items-center sm:justify-between'
+              : 'rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800'
+          }
+          role={exportFeedback.type === 'error' ? 'alert' : 'status'}
+        >
+          <span>{exportFeedback.message}</span>
+          {exportFeedback.type === 'error' ? (
+            <Button
+              className="min-h-11 shrink-0"
+              onClick={() => {
+                setExportFeedback(null)
+                setExportRetryRequest((current) => current + 1)
+              }}
+              variant="secondary"
+            >
+              Tentar exportar novamente
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
 
       {hasReportError ? (
         <ErrorState title="Nao foi possivel carregar o relatorio." />

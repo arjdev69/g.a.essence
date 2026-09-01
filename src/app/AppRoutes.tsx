@@ -38,7 +38,7 @@ function PageAction({
           type="button"
           aria-label="Limpar filtros"
           onClick={onSecondaryClick}
-          className="inline-flex h-10 items-center gap-2 rounded-md border border-stone-300 bg-white px-4 text-sm font-medium text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+          className="inline-flex min-h-11 items-center gap-2 rounded-md border border-stone-300 bg-white px-4 text-sm font-medium text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">Limpar filtros</span>
@@ -46,7 +46,8 @@ function PageAction({
         <button
           type="button"
           onClick={onClick}
-          className="inline-flex h-10 items-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+          aria-label={label}
+          className="inline-flex min-h-11 items-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
         >
           <Download className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">{label}</span>

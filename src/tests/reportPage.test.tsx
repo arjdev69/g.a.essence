@@ -25,10 +25,15 @@ vi.mock('../repositories/service.repository', () => ({
   },
 }))
 
+vi.mock('../services/export/downloadFile', () => ({
+  downloadFile: vi.fn(),
+}))
+
 import { ReportsPage } from '../features/reports/ReportsPage'
 import { appointmentRepository } from '../repositories/appointment.repository'
 import { professionalRepository } from '../repositories/professional.repository'
 import { serviceRepository } from '../repositories/service.repository'
+import { downloadFile } from '../services/export/downloadFile'
 
 const now = new Date()
 const currentMonthRange = getAppointmentMonthRange(
@@ -249,5 +254,58 @@ describe('reports mobile and filters', () => {
 
     expect(container.querySelector<HTMLSelectElement>('#report-status')?.value).toBe('all')
     expect(container.querySelector<HTMLSelectElement>('#report-professional')?.value).toBe('all')
+  })
+
+  it('exporta exatamente o relatório filtrado e oferece nova tentativa quando o download falha', async () => {
+    const { container, root } = renderReports()
+    await settleQueries()
+
+    act(() => {
+      root.render(
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
+          <ReportsPage exportRequest={1} />
+        </QueryClientProvider>,
+      )
+    })
+    await settleQueries()
+
+    expect(downloadFile).toHaveBeenCalledWith({
+      content: expect.stringContaining(
+        'Data;Hora;Paciente;Servico;Profissional;Status;Valor;Clinica;Ganho profissional',
+      ),
+      filename: expect.stringMatching(/^relatorio-mensal-\d{4}-\d{2}\.csv$/),
+      mimeType: 'text/csv;charset=utf-8',
+    })
+    expect(container.textContent).toContain('CSV exportado:')
+
+    vi.mocked(downloadFile).mockImplementationOnce(() => {
+      throw new Error('download failed')
+    })
+    act(() => {
+      root.render(
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
+          <ReportsPage exportRequest={2} />
+        </QueryClientProvider>,
+      )
+    })
+    await settleQueries()
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      'Nao foi possivel gerar o arquivo CSV.',
+    )
+    const retryButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Tentar exportar novamente',
+    )
+    expect(retryButton).not.toBeUndefined()
+
+    act(() => retryButton?.click())
+    await settleQueries()
+
+    expect(container.textContent).toContain('CSV exportado:')
+    expect(vi.mocked(downloadFile).mock.calls.length).toBe(3)
   })
 })
