@@ -222,6 +222,8 @@ Responsividade mobile da tela de produtos.
 
 ### TASK-P036
 
+- [x] Formulários de cadastro, entrada, ajuste e venda revisados com labels associados, ajuda anunciável, ações nomeadas e cobertura automatizada.
+
 Revisar acessibilidade dos formularios e acoes.
 
 ### TASK-P037
