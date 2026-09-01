@@ -41,11 +41,16 @@ vi.mock('../repositories/calendar.repository', () => ({
   uploadAppointmentCalendarFile: vi.fn(),
 }))
 
+vi.mock('../services/export/downloadFile', () => ({
+  downloadFile: vi.fn(),
+}))
+
 import { AppointmentsPage } from '../features/appointments/AppointmentsPage'
 import { appointmentRepository } from '../repositories/appointment.repository'
 import { patientRepository } from '../repositories/patient.repository'
 import { professionalRepository } from '../repositories/professional.repository'
 import { serviceRepository } from '../repositories/service.repository'
+import { downloadFile } from '../services/export/downloadFile'
 
 const currentMonth = new Date()
 const currentMonthSelection = {
@@ -250,6 +255,65 @@ afterEach(() => {
 })
 
 describe('appointments mobile filters', () => {
+  it('baixa o evento ICS localmente e anuncia o sucesso', async () => {
+    const container = renderAppointments()
+    await settleQueries()
+
+    const calendarButton = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
+    )
+    expect(calendarButton).not.toBeNull()
+    expect(calendarButton?.className).toContain('min-h-11')
+
+    act(() => calendarButton?.click())
+    await settleQueries()
+
+    expect(downloadFile).toHaveBeenCalledTimes(1)
+    expect(downloadFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filename: expect.stringMatching(/^atendimento-\d{4}-\d{2}-\d{2}-09-00\.ics$/),
+        mimeType: 'text/calendar;charset=utf-8',
+      }),
+    )
+    expect(container.textContent).toContain('baixado')
+  })
+
+  it('anuncia falha do download e mantém a ação disponível para nova tentativa', async () => {
+    vi.mocked(downloadFile).mockImplementationOnce(() => {
+      throw new Error('download failed')
+    })
+    const container = renderAppointments()
+    await settleQueries()
+
+    const calendarButton = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
+    )
+    act(() => calendarButton?.click())
+    await settleQueries()
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      'Tente novamente',
+    )
+    expect(calendarButton?.disabled).toBe(false)
+  })
+
+  it('bloqueia o calendario quando faltam dados obrigatorios do atendimento', async () => {
+    vi.mocked(appointmentRepository.list).mockResolvedValueOnce([
+      { ...appointments[0], professionalName: null },
+    ])
+    const container = renderAppointments()
+    await settleQueries()
+
+    const calendarButton = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
+    )
+    expect(calendarButton?.disabled).toBe(true)
+    expect(calendarButton?.getAttribute('title')).toBe(
+      'Dados do atendimento incompletos',
+    )
+    expect(calendarButton?.className).toContain('min-h-11')
+  })
+
   it('starts in the current month and applies search and status without reload', async () => {
     const container = renderAppointments()
     await settleQueries()
@@ -407,6 +471,10 @@ describe('appointments mobile filters', () => {
 
     const menu = container.querySelector('[role="menu"]')
     expect(actionsTrigger?.getAttribute('aria-expanded')).toBe('true')
+    expect(menu?.getAttribute('aria-label')).toBe('Ações para Maria Silva')
+    expect(
+      menu?.querySelector('[aria-label="Adicionar atendimento de Maria Silva ao calendario"]')?.className,
+    ).toContain('min-h-11')
     expect(menu?.textContent).toContain('Adicionar ao calendario')
     expect(menu?.textContent).toContain('Remover')
 

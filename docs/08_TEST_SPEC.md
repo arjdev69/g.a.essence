@@ -151,3 +151,11 @@ Verificações:
 ### 7.7 Performance — RNF-010
 
 - Com fixture de `1.000` atendimentos já carregados, alterar mês/status e atualizar lista/indicadores em até `500ms` no ambiente de teste definido pelo projeto.
+
+### 7.8 Exportação para calendário — sprint 16/17
+
+- O contrato gera título, descrição, duração padrão de 60 minutos, timestamps locais e nome `atendimento-YYYY-MM-DD-HH-mm.ics`.
+- O clique na agenda chama o download local com MIME `text/calendar;charset=utf-8` e anuncia o arquivo baixado.
+- A ação permanece acessível na tabela desktop e no menu do card mobile, com alvo mínimo de 44 px, foco visível e `aria-label` descritivo.
+- Dados obrigatórios ausentes bloqueiam a ação; falhas do download usam alerta e permitem nova tentativa.
+- Executar testes unitários do domínio, helper de download e fluxo da agenda; auditar axe no estado completo sem violações críticas ou sérias.
