@@ -405,6 +405,7 @@ export function AppointmentsPage({
     data: appointments = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['appointments', appointmentFilters],
     queryFn: () => appointmentRepository.list(appointmentFilters),
@@ -612,7 +613,15 @@ export function AppointmentsPage({
 
   async function handleSubmitAppointment(input: AppointmentFormData) {
     if (formMode?.type === 'edit') {
+      if (updateMutation.isPending) {
+        return
+      }
+
       await updateMutation.mutateAsync({ id: formMode.appointment.id, input })
+      return
+    }
+
+    if (createMutation.isPending) {
       return
     }
 
@@ -977,7 +986,14 @@ export function AppointmentsPage({
       </section>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar os atendimentos." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar os atendimentos."
+        />
       ) : null}
 
       {isLoading ? (

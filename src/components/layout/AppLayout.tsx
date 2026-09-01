@@ -106,7 +106,7 @@ function MobileNavigation() {
     <>
       <button
         type="button"
-        className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-stone-300 bg-white text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2 lg:hidden"
+        className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md border border-stone-300 bg-white text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2 lg:hidden"
         aria-controls="mobile-navigation-drawer"
         aria-expanded={isMobileNavigationOpen}
         aria-haspopup="dialog"
@@ -156,7 +156,7 @@ function MobileNavigation() {
               </div>
               <button
                 type="button"
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-stone-300 bg-white text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+                className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-md border border-stone-300 bg-white text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
                 aria-label="Fechar menu principal"
                 data-mobile-drawer-close
                 onClick={closeMobileNavigation}

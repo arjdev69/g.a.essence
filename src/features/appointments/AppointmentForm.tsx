@@ -160,6 +160,7 @@ export function AppointmentForm({
       ) : null}
 
       <Select
+        className="min-h-11 text-base sm:text-sm"
         disabled={disabled}
         error={errors.patientId?.message}
         label="Paciente"
@@ -168,6 +169,17 @@ export function AppointmentForm({
       />
 
       <Select
+        className="min-h-11 text-base sm:text-sm"
+        disabled={disabled}
+        error={errors.serviceId?.message}
+        label="Servico"
+        onChange={handleServiceChange}
+        options={toSelectOptions('Selecione um servico', serviceOptions)}
+        {...serviceField}
+      />
+
+      <Select
+        className="min-h-11 text-base sm:text-sm"
         disabled={disabled}
         error={errors.professionalId?.message}
         label="Profissional"
@@ -178,17 +190,9 @@ export function AppointmentForm({
         {...register('professionalId')}
       />
 
-      <Select
-        disabled={disabled}
-        error={errors.serviceId?.message}
-        label="Servico"
-        onChange={handleServiceChange}
-        options={toSelectOptions('Selecione um servico', serviceOptions)}
-        {...serviceField}
-      />
-
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.appointmentDate?.message}
           label="Data"
@@ -197,6 +201,7 @@ export function AppointmentForm({
         />
 
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.appointmentTime?.message}
           label="Hora"
@@ -206,6 +211,7 @@ export function AppointmentForm({
       </div>
 
       <Select
+        className="min-h-11 text-base sm:text-sm"
         disabled={disabled}
         error={errors.status?.message}
         label="Status"
@@ -215,6 +221,7 @@ export function AppointmentForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.value?.message}
           label="Valor"
@@ -225,6 +232,7 @@ export function AppointmentForm({
         />
 
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.clinicFeePercentage?.message}
           label="Percentual"
@@ -274,7 +282,7 @@ export function AppointmentForm({
           aria-describedby={errors.notes ? 'notes-error' : undefined}
           aria-invalid={Boolean(errors.notes)}
           className={cn(
-            'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500',
+            'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500 sm:text-sm',
             errors.notes &&
               'border-red-500 focus:border-red-600 focus:ring-red-600/20',
           )}
@@ -292,6 +300,7 @@ export function AppointmentForm({
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {onCancel ? (
           <Button
+            className="min-h-11"
             disabled={disabled}
             onClick={onCancel}
             type="button"
@@ -300,7 +309,7 @@ export function AppointmentForm({
             Cancelar
           </Button>
         ) : null}
-        <Button disabled={disabled} type="submit">
+        <Button className="min-h-11" disabled={disabled} type="submit">
           {submitLabel}
         </Button>
       </div>
