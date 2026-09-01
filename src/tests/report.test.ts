@@ -178,6 +178,28 @@ describe('createMonthlySummary', () => {
     expect(summary.byService).toHaveLength(1)
   })
 
+  it('summarizes one thousand loaded appointments within 500ms', () => {
+    const appointments = Array.from({ length: 1_000 }, (_, index) =>
+      makeAppointment({
+        clinicFeeValue: 33,
+        id: `appointment-${index}`,
+        professionalGainValue: 77,
+        status: index % 2 === 0 ? 'completed' : 'scheduled',
+        value: 110,
+      }),
+    )
+    const start = performance.now()
+    const summary = createMonthlySummary(
+      { month: 6, status: 'completed', year: 2026 },
+      appointments,
+    )
+    const duration = performance.now() - start
+
+    expect(summary.totalCount).toBe(500)
+    expect(summary.financialCount).toBe(500)
+    expect(duration).toBeLessThan(500)
+  })
+
   it('exports monthly report rows as CSV', () => {
     const appointments = [
       makeAppointment({
