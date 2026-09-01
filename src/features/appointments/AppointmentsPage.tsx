@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft,
   ChevronRight,
+  CalendarDays,
   MoreHorizontal,
   Pencil,
   RotateCcw,
@@ -30,9 +31,11 @@ import type {
   AppointmentDTO,
   AppointmentStatus,
 } from '../../domain/appointments/appointment.types'
-import { prepareAppointmentCalendarInput } from '../../domain/calendar'
+import {
+  createAppointmentCalendarIcs,
+  prepareAppointmentCalendarInput,
+} from '../../domain/calendar'
 import { appointmentRepository } from '../../repositories/appointment.repository'
-import { uploadAppointmentCalendarFile } from '../../repositories/calendar.repository'
 import { patientRepository } from '../../repositories/patient.repository'
 import { professionalRepository } from '../../repositories/professional.repository'
 import { serviceRepository } from '../../repositories/service.repository'
@@ -42,6 +45,7 @@ import {
   type AppointmentDateRange,
 } from '../../utils/appointmentPeriod'
 import { formatCurrencyBRL } from '../../utils/formatCurrencyBRL'
+import { downloadFile } from '../../services/export'
 import { AppointmentForm } from './AppointmentForm'
 import type { AppointmentFormData } from './appointment.schema'
 
@@ -144,12 +148,14 @@ function CalendarCalendarButton({
   appointment,
   className,
   isDisabled,
+  isExporting,
   onClick,
   role,
 }: {
   appointment: AppointmentDTO
   className?: string
   isDisabled: boolean
+  isExporting: boolean
   onClick: (appointment: AppointmentDTO) => void
   role?: 'menuitem'
 }) {
@@ -159,9 +165,9 @@ function CalendarCalendarButton({
   return (
     <Button
       aria-label={`Adicionar atendimento de ${getAppointmentSubject(appointment)} ao calendario`}
-      className={className}
+      className={`min-h-11 ${className ?? ''}`}
       disabled={isCalendarDisabled}
-      icon={null}
+      icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
       onClick={() => onClick(appointment)}
       role={role}
       size="sm"
@@ -172,7 +178,7 @@ function CalendarCalendarButton({
       }
       variant="secondary"
     >
-      Adicionar ao calendario
+      {isExporting ? 'Gerando calendario...' : 'Adicionar ao calendario'}
     </Button>
   )
 }
@@ -211,6 +217,7 @@ function AppointmentActions({
         appointment={appointment}
         className="shrink-0"
         isDisabled={isDisabled}
+        isExporting={isCalendarExporting}
         onClick={onCalendarClick}
       />
       <Button
@@ -285,6 +292,7 @@ function AppointmentCardActions({
               appointment={appointment}
               className="min-h-11 w-full justify-start rounded-md"
               isDisabled={isDisabled}
+              isExporting={isCalendarExporting}
               onClick={(selectedAppointment) => {
                 setIsMenuOpen(false)
                 onCalendarClick(selectedAppointment)
@@ -656,8 +664,16 @@ export function AppointmentsPage({
     setIsCalendarExporting(true)
 
     try {
-      const publicUrl = await uploadAppointmentCalendarFile(appointment)
-      window.location.assign(publicUrl)
+      await Promise.resolve()
+      const calendarFile = createAppointmentCalendarIcs(appointment)
+      downloadFile({
+        content: calendarFile.content,
+        filename: calendarFile.filename,
+        mimeType: 'text/calendar;charset=utf-8',
+      })
+      setCalendarFeedbackMessage(
+        `Arquivo ${calendarFile.filename} baixado. Abra-o para adicionar ao calendario.`,
+      )
     } catch {
       setCalendarErrorMessage(
         'Nao foi possivel gerar o calendario. Tente novamente.',
