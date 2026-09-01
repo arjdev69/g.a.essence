@@ -28,11 +28,11 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 14 — Contratos de período e relatório (em andamento)
-- **Tasks concluídas neste bloco**: nenhuma
+- **Bloco atual**: 14 — Contratos de período e relatório (concluído; ready-for-merge)
+- **Tasks concluídas neste bloco**: T-062, T-063, T-064, T-065
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: implementar T-062 — filtros por intervalo e normalização mensal
-- **Validação**: PRE-001 aprovado — `npm test` (6 arquivos, 30 testes), `npm run build` e `npm run lint` passaram
+- **Próximo passo**: congelar a ponta e integrar o Bloco 14 em `develop` com merge local `--no-ff`
+- **Validação**: POST-001 aprovado — `npm test` (7 arquivos, 48 testes), `npm run build` e `npm run lint` passaram; build mantém apenas o aviso conhecido de bundle acima de 500 kB
 - **Tentativas de baseline pré-task**: PRE-001 → 161f446ec0aca25011c13552bca435619f342257 → `npm test`; `npm run build`; `npm run lint` → aprovado: 6 arquivos/30 testes, build e lint sem erros
 - **Baseline inicial do bloco**: PRE-001 aprovado
 - **Rebaselines de comando**: nenhum
@@ -42,10 +42,10 @@ STATE_SCHEMA: 3
 - **Branch de integração**: develop
 - **Branch de trabalho**: feature/bloco-14-contratos-periodo-relatorio
 - **Base da branch (SHA)**: 161f446ec0aca25011c13552bca435619f342257
-- **Último commit de task validado**: nenhum
-- **Estado da integração**: active
-- **Tip congelado para integração**: nenhum
+- **Último commit de task validado**: 3533f1b45b8d35bdd5a9d0870e769963fc1d3e5b
+- **Estado da integração**: ready-for-merge
+- **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
 - **Arquivos dirty esperados**: nenhum
 - **Operação Git pendente**: none
 - **Push**: não solicitado
-- **Motivo da parada**: execução ativa
+- **Motivo da parada**: bloco concluído e pronto para integração local
