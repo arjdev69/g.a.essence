@@ -28,24 +28,25 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 19 — Exportação de atendimentos para calendário (concluído; ready-for-merge)
-- **Tasks concluídas neste bloco**: T-077, T-078, T-079
+- **Bloco atual**: 20 — Reconciliação do PR #2 / fluxo de Produtos
+- **Tasks do escopo**: TASK-P000–TASK-P041 em `docs/26_PRODUCTS_TASKS.md` (fonte do PR #2); integração do PR e preservação da UX mobile atual
+- **Tasks concluídas neste bloco**: nenhuma
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: congelar a ponta e integrar o Bloco 19 em `develop` com merge local `--no-ff`
-- **Validação**: POST-006 aprovado — `npm test` (14 arquivos, 78 testes), `npm run build` e `npm run lint` passaram; axe não apontou violações critical/serious no escopo; contrato e fluxo cobrem download local, sucesso, erro recuperável, dados incompletos e variantes desktop/mobile; build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes axe no jsdom registram o aviso de canvas não implementado
-- **Tentativas de baseline pré-task**: PRE-006-1 → falhou por timeout de 5 s em `src/tests/reportPage.test.tsx` durante `npm test`; PRE-006-2 → aprovado: `npm test` (14 arquivos, 75 testes), `npm run build` e `npm run lint`
-- **Baseline inicial do bloco**: PRE-006-2 aprovado
+- **Próximo passo**: importar `origin/main` (merge do PR #2) na branch de trabalho para validação e reconciliação
+- **Validação**: PRE-007-1 aprovado — `npm test` (14 arquivos, 78 testes), `npm run lint` e `npm run build` passaram; build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes existentes registram os avisos de canvas não implementado no jsdom
+- **Tentativas de baseline pré-task**: PRE-007-1 → aprovado: `npm test` (14 arquivos, 78 testes), `npm run lint` e `npm run build`
+- **Baseline inicial do bloco**: PRE-007-1 aprovado
 - **Rebaselines de comando**: nenhum
 - **Bloqueios**: nenhum
 - **Modo Gitflow**: feature
 - **Branch de produção**: main
 - **Branch de integração**: develop
-- **Branch de trabalho**: feature/bloco-19-calendario
-- **Base da branch (SHA)**: 1c74928f81281b953e3b5d953d62b230f8eaf607
-- **Último commit de task validado**: 3ef73b6
-- **Estado da integração**: ready-for-merge
-- **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
+- **Branch de trabalho**: feature/bloco-20-produtos
+- **Base da branch (SHA)**: d75aff320d2806c52526a0a823aecf18686f5351
+- **Último commit de task validado**: nenhum
+- **Estado da integração**: active
+- **Tip congelado para integração**: nenhum
 - **Arquivos dirty esperados**: nenhum
 - **Operação Git pendente**: none
 - **Push**: não solicitado
-- **Motivo da parada**: bloco concluído e pronto para integração local
+- **Motivo da parada**: checkpoint inicial concluído; reconciliação do PR iniciada
