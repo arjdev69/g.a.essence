@@ -267,6 +267,7 @@ function AppointmentCardActions({
           aria-expanded={isMenuOpen}
           aria-haspopup="menu"
           aria-label={`Mais ações para ${subject}`}
+          className="min-h-11 min-w-11"
           disabled={isDisabled}
           icon={<MoreHorizontal className="h-5 w-5" aria-hidden="true" />}
           onClick={() => setIsMenuOpen((current) => !current)}
@@ -282,7 +283,7 @@ function AppointmentCardActions({
           >
             <CalendarCalendarButton
               appointment={appointment}
-              className="w-full justify-start rounded-md"
+              className="min-h-11 w-full justify-start rounded-md"
               isDisabled={isDisabled}
               onClick={(selectedAppointment) => {
                 setIsMenuOpen(false)
@@ -291,7 +292,7 @@ function AppointmentCardActions({
               role="menuitem"
             />
             <Button
-              className="w-full justify-start rounded-md"
+              className="min-h-11 w-full justify-start rounded-md"
               icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
               onClick={() => {
                 setIsMenuOpen(false)
@@ -783,6 +784,7 @@ export function AppointmentsPage({
             <div className="mt-2 flex items-end gap-2">
               <Button
                 aria-label="Mês anterior"
+                className="min-h-11 min-w-11"
                 icon={<ChevronLeft className="h-4 w-4" aria-hidden="true" />}
                 onClick={() => handleMoveMonth(-1)}
                 size="icon"
@@ -790,7 +792,7 @@ export function AppointmentsPage({
               />
               <Input
                 aria-label="Mês selecionado"
-                className="min-w-0 text-base sm:text-sm"
+                className="min-h-11 min-w-0 text-base sm:text-sm"
                 id="appointment-month"
                 label="Mês"
                 onChange={(event) =>
@@ -801,6 +803,7 @@ export function AppointmentsPage({
               />
               <Button
                 aria-label="Próximo mês"
+                className="min-h-11 min-w-11"
                 icon={<ChevronRight className="h-4 w-4" aria-hidden="true" />}
                 onClick={() => handleMoveMonth(1)}
                 size="icon"
@@ -811,7 +814,7 @@ export function AppointmentsPage({
           <Button
             aria-expanded={periodMode === 'custom'}
             aria-controls="appointment-custom-period"
-            className="w-full sm:w-auto"
+            className="min-h-11 w-full sm:w-auto"
             onClick={handleToggleCustomPeriod}
             type="button"
             variant="secondary"
@@ -828,7 +831,7 @@ export function AppointmentsPage({
             id="appointment-custom-period"
           >
             <Input
-              className="text-base sm:text-sm"
+              className="min-h-11 text-base sm:text-sm"
               error={periodError ?? undefined}
               id="appointment-date-from"
               label="De"
@@ -839,7 +842,7 @@ export function AppointmentsPage({
               value={customDateFrom}
             />
             <Input
-              className="text-base sm:text-sm"
+              className="min-h-11 text-base sm:text-sm"
               error={periodError ?? undefined}
               id="appointment-date-to"
               label="Até"
@@ -861,7 +864,7 @@ export function AppointmentsPage({
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,220px)]">
           <Input
             aria-label="Buscar paciente ou serviço"
-            className="text-base sm:text-sm"
+            className="min-h-11 text-base sm:text-sm"
             id="appointment-search"
             label="Buscar paciente ou serviço"
             onChange={(event) => setSearchFilter(event.target.value)}
@@ -870,6 +873,7 @@ export function AppointmentsPage({
             value={searchFilter}
           />
           <Select
+            className="min-h-11"
             id="appointment-status"
             label="Status"
             onChange={(event) =>
@@ -890,7 +894,7 @@ export function AppointmentsPage({
           <Button
             aria-controls="appointment-more-filters"
             aria-expanded={isMoreFiltersOpen}
-            className="w-full sm:w-auto"
+            className="min-h-11 w-full sm:w-auto"
             onClick={() => setIsMoreFiltersOpen((current) => !current)}
             type="button"
             variant="secondary"
@@ -909,7 +913,7 @@ export function AppointmentsPage({
             </p>
             <Button
               aria-label="Limpar filtros da agenda"
-              className="shrink-0"
+              className="min-h-11 shrink-0"
               icon={<RotateCcw className="h-4 w-4" aria-hidden="true" />}
               onClick={handleClearFilters}
               type="button"
@@ -926,6 +930,7 @@ export function AppointmentsPage({
             id="appointment-more-filters"
           >
             <Select
+              className="min-h-11"
               id="appointment-patient"
               label="Paciente"
               onChange={(event) => setPatientFilter(event.target.value)}
@@ -933,6 +938,7 @@ export function AppointmentsPage({
               value={patientFilter}
             />
             <Select
+              className="min-h-11"
               id="appointment-professional"
               label="Profissional"
               onChange={(event) => setProfessionalFilter(event.target.value)}
@@ -943,6 +949,7 @@ export function AppointmentsPage({
               value={professionalFilter}
             />
             <Select
+              className="min-h-11"
               id="appointment-service"
               label="Serviço"
               onChange={(event) => setServiceFilter(event.target.value)}
@@ -981,7 +988,11 @@ export function AppointmentsPage({
         <EmptyState
           action={
             hasAdditionalFilters ? (
-              <Button onClick={handleClearFilters} variant="secondary">
+              <Button
+                className="min-h-11"
+                onClick={handleClearFilters}
+                variant="secondary"
+              >
                 Limpar filtros
               </Button>
             ) : undefined
