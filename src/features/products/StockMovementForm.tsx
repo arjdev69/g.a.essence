@@ -374,7 +374,7 @@ export function StockMovementForm({
             aria-describedby={errors.notes ? 'notes-error' : undefined}
             aria-invalid={Boolean(errors.notes)}
             className={cn(
-              'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500',
+              'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500 sm:text-sm',
               errors.notes &&
                 'border-red-500 focus:border-red-600 focus:ring-red-600/20',
             )}
@@ -394,6 +394,7 @@ export function StockMovementForm({
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {onCancel ? (
           <Button
+            className="min-h-11"
             disabled={disabled}
             onClick={onCancel}
             type="button"
@@ -402,7 +403,7 @@ export function StockMovementForm({
             Cancelar
           </Button>
         ) : null}
-        <Button disabled={disabled} type="submit">
+        <Button className="min-h-11" disabled={disabled} type="submit">
           {submitLabel}
         </Button>
       </div>

@@ -337,6 +337,7 @@ function ProductActions({
     >
       <Button
         aria-label={`Editar ${product.name}`}
+        className="min-h-11 min-w-11"
         disabled={isMutating}
         icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
         onClick={() => onEdit(product)}
@@ -346,6 +347,7 @@ function ProductActions({
       />
       <Button
         aria-label={`Ver historico de ${product.name}`}
+        className="min-h-11 min-w-11"
         disabled={isMutating}
         icon={<History className="h-4 w-4" aria-hidden="true" />}
         onClick={() => onOpenHistory(product)}
@@ -357,6 +359,7 @@ function ProductActions({
         <>
           <Button
             aria-label={`Registrar entrada para ${product.name}`}
+            className="min-h-11 min-w-11"
             disabled={isMutating}
             icon={<ArrowDownToLine className="h-4 w-4" aria-hidden="true" />}
             onClick={() => onOpenEntry(product)}
@@ -366,6 +369,7 @@ function ProductActions({
           />
           <Button
             aria-label={`Registrar venda de ${product.name}`}
+            className="min-h-11 min-w-11"
             disabled={isMutating}
             icon={<ShoppingCart className="h-4 w-4" aria-hidden="true" />}
             onClick={() => onOpenSale(product)}
@@ -375,6 +379,7 @@ function ProductActions({
           />
           <Button
             aria-label={`Registrar movimentacao de ${product.name}`}
+            className="min-h-11 min-w-11"
             disabled={isMutating}
             icon={<SlidersHorizontal className="h-4 w-4" aria-hidden="true" />}
             onClick={() => onOpenMovement(product)}
@@ -384,6 +389,7 @@ function ProductActions({
           />
           <Button
             aria-label={`Inativar ${product.name}`}
+            className="min-h-11 min-w-11"
             disabled={isMutating}
             icon={<UserX className="h-4 w-4" aria-hidden="true" />}
             onClick={() => onDeactivate(product)}
@@ -999,6 +1005,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
       <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,180px)_minmax(0,180px)_auto] lg:items-end">
           <Input
+            className="text-base sm:text-sm"
             label="Periodo inicial"
             name="summaryDateFrom"
             onChange={(event) =>
@@ -1008,6 +1015,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
             value={summaryPeriod.dateFrom ?? ''}
           />
           <Input
+            className="text-base sm:text-sm"
             label="Periodo final"
             name="summaryDateTo"
             onChange={(event) =>
@@ -1021,7 +1029,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
               disabled={!hasSummaryPeriod}
               icon={<FilterX className="h-4 w-4" aria-hidden="true" />}
               onClick={handleResetSummaryPeriod}
-              className="w-full sm:w-auto"
+              className="min-h-11 w-full sm:w-auto"
               variant="secondary"
             >
               Limpar periodo
@@ -1124,7 +1132,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
             />
             <Input
               aria-label="Buscar produto ou tamanho"
-              className="pl-9"
+              className="min-h-11 pl-9 text-base sm:text-sm"
               name="productSearch"
               onChange={(event) => updateFilter('search', event.target.value)}
               placeholder="Buscar produto ou tamanho"
@@ -1135,6 +1143,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
 
           <Select
             aria-label="Filtrar por categoria"
+            className="min-h-11 text-base sm:text-sm"
             name="categoryFilter"
             onChange={(event) => updateFilter('category', event.target.value)}
             options={categoryOptions}
@@ -1143,6 +1152,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
 
           <Select
             aria-label="Filtrar por status"
+            className="min-h-11 text-base sm:text-sm"
             name="statusFilter"
             onChange={(event) =>
               updateFilter('status', event.target.value as StatusFilter)
@@ -1157,6 +1167,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
 
           <Select
             aria-label="Filtrar por estoque baixo"
+            className="min-h-11 text-base sm:text-sm"
             name="lowStockFilter"
             onChange={(event) =>
               updateFilter('lowStock', event.target.value as ToggleFilter)
@@ -1170,6 +1181,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
 
           <Select
             aria-label="Filtrar por dados pendentes"
+            className="min-h-11 text-base sm:text-sm"
             name="pendingDataFilter"
             onChange={(event) =>
               updateFilter('pendingData', event.target.value as ToggleFilter)
@@ -1185,18 +1197,18 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
       <div className="mt-4 flex flex-wrap justify-end gap-3">
         <Button
           disabled={isExportingCsv}
+          className="min-h-11 w-full sm:w-auto"
           icon={<Download className="h-4 w-4" aria-hidden="true" />}
           onClick={handleExportCsv}
-          className="w-full sm:w-auto"
           variant="secondary"
         >
           {isExportingCsv ? 'Exportando...' : 'Exportar CSV'}
         </Button>
         <Button
           disabled={!hasActiveFilters}
+          className="min-h-11 w-full sm:w-auto"
           icon={<FilterX className="h-4 w-4" aria-hidden="true" />}
           onClick={handleResetFilters}
-          className="w-full sm:w-auto"
           variant="secondary"
         >
           Limpar filtros
