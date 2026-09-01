@@ -206,4 +206,55 @@ describe('createMonthlySummary', () => {
     expect(lines[1].split(';')).toHaveLength(9)
     expect(lines[1]).toContain('Realizado')
   })
+
+  it.each([
+    ['scheduled', 'Agendado'],
+    ['completed', 'Realizado'],
+    ['paid', 'Pago'],
+    ['cancelled', 'Cancelado'],
+    ['no_show', 'Faltou'],
+  ] as const)(
+    'exports exactly the rows visible for status %s',
+    (status, statusLabel) => {
+      const statuses = [
+        'scheduled',
+        'completed',
+        'paid',
+        'cancelled',
+        'no_show',
+      ] as const
+      const appointments = statuses.map((appointmentStatus, index) =>
+        makeAppointment({
+          clinicFeeValue: appointmentStatus === 'completed' ? 33 : 0,
+          id: `appointment-${appointmentStatus}`,
+          patientName: `Paciente ${index + 1}`,
+          professionalGainValue: appointmentStatus === 'completed' ? 77 : 0,
+          status: appointmentStatus,
+          value: 110,
+        }),
+      )
+      const input = { month: 6, status, year: 2026 }
+      const summary = createMonthlySummary(input, appointments)
+      const csv = createMonthlyReportCsv(input, summary)
+      const dataLines = csv.content.split('\n').slice(1)
+      const exportedPatients = dataLines.map((line) => line.split(';')[2])
+
+      expect(summary.rows.map((appointment) => appointment.patientName)).toEqual(
+        exportedPatients,
+      )
+      expect(dataLines).toHaveLength(1)
+      expect(dataLines[0]).toContain(statusLabel)
+      expect(dataLines[0]).not.toContain(
+        statusLabelsForTest.find((label) => label !== statusLabel),
+      )
+    },
+  )
 })
+
+const statusLabelsForTest = [
+  'Agendado',
+  'Realizado',
+  'Pago',
+  'Cancelado',
+  'Faltou',
+]
