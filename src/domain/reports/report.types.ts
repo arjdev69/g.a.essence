@@ -1,16 +1,23 @@
-import type { AppointmentDTO } from '../appointments/appointment.types'
+import type {
+  AppointmentDTO,
+  AppointmentStatus,
+} from '../appointments/appointment.types'
 
 export type MonthlyReportInput = {
   month: number
   year: number
   professionalId?: string
   serviceId?: string
+  status?: AppointmentStatus
 }
 
 export type MonthlyReportOutput = {
   totalRevenue: number
   totalClinicRevenue: number
   totalProfessionalRevenue: number
+  totalCount: number
+  financialCount: number
+  /** @deprecated Use financialCount for explicit report semantics. */
   appointmentCount: number
   cancelledCount: number
   noShowCount: number

@@ -193,6 +193,14 @@ export const appointmentRepository = {
 
     if (filters.date) {
       query = query.eq('appointment_date', filters.date)
+    } else {
+      if (filters.dateFrom) {
+        query = query.gte('appointment_date', filters.dateFrom)
+      }
+
+      if (filters.dateTo) {
+        query = query.lte('appointment_date', filters.dateTo)
+      }
     }
 
     if (filters.patientId) {
