@@ -50,6 +50,7 @@ O modulo de Produtos precisa ser tao simples quanto o resto do app, com foco em 
 - filtro por status;
 - filtro por estoque baixo;
 - filtro por dados pendentes;
+- filtro por pagamento pendente (fiado);
 - filtro por periodo para vendas/recebimentos;
 - botao `Novo produto`;
 - acao secundaria `Registrar venda`.

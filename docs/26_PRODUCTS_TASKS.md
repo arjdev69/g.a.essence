@@ -235,6 +235,19 @@ planilha, sem importacao automatica.
 
 Executar `npm run test`, `npm run lint` e `npm run build`.
 
+## EPIC-026 Produtos - Recebimentos Pendentes
+
+### TASK-P042
+
+- [x] Filtro de pagamento pendente (fiado) implementado na listagem e na
+  exportacao, com vendas `pending` e `partial`, combinacao com os demais
+  filtros e cobertura automatizada no mobile e no repository.
+
+Adicionar filtro `Pagamento pendente (fiado)` na listagem e na exportacao de
+Produtos. O filtro deve considerar vendas `pending` ou `partial`, manter os
+demais filtros combinaveis e ter cobertura automatizada no mobile e no
+repository.
+
 ## EPIC-024 Produtos - Imagem Opcional
 
 ### TASK-P039
@@ -274,5 +287,6 @@ priorizada futuramente.
 9. TASK-P028 a TASK-P031.
 10. TASK-P034.
 11. TASK-P035 a TASK-P038.
-12. TASK-P039 a TASK-P041, apenas se imagem for priorizada.
-13. TASK-P032 e TASK-P033, apenas se importacao for priorizada futuramente.
+12. TASK-P042.
+13. TASK-P039 a TASK-P041, apenas se imagem for priorizada.
+14. TASK-P032 e TASK-P033, apenas se importacao for priorizada futuramente.

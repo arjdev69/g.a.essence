@@ -72,6 +72,7 @@ type ToggleFilter = 'all' | 'yes'
 type ProductPageFilters = {
   category: string
   lowStock: ToggleFilter
+  paymentPending: ToggleFilter
   pendingData: ToggleFilter
   search: string
   status: StatusFilter
@@ -92,6 +93,7 @@ type MovementFormMode =
 const initialFilters: ProductPageFilters = {
   category: 'all',
   lowStock: 'all',
+  paymentPending: 'all',
   pendingData: 'all',
   search: '',
   status: 'all',
@@ -103,6 +105,7 @@ function toRepositoryFilters(
   return {
     category: filters.category === 'all' ? undefined : filters.category,
     lowStock: filters.lowStock === 'yes',
+    paymentPending: filters.paymentPending === 'yes',
     pendingData: filters.pendingData === 'yes',
     search: filters.search.trim() || undefined,
     status: filters.status === 'all' ? undefined : filters.status,
@@ -771,6 +774,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
   const hasActiveFilters =
     filters.category !== 'all' ||
     filters.lowStock !== 'all' ||
+    filters.paymentPending !== 'all' ||
     filters.pendingData !== 'all' ||
     filters.search.trim().length > 0 ||
     filters.status !== 'all'
@@ -1124,7 +1128,7 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
       ) : null}
 
       <section className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_180px] xl:grid-cols-[minmax(0,1fr)_180px_180px_180px_180px]">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px_180px] xl:grid-cols-[minmax(0,1fr)_180px_180px_180px_180px_180px]">
           <div className="relative">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
@@ -1191,6 +1195,20 @@ export function ProductsPage({ createRequest }: ProductsPageProps) {
               { label: 'Somente pendentes', value: 'yes' },
             ]}
             value={filters.pendingData}
+          />
+
+          <Select
+            aria-label="Filtrar por pagamento pendente"
+            className="min-h-11 text-base sm:text-sm"
+            name="paymentPendingFilter"
+            onChange={(event) =>
+              updateFilter('paymentPending', event.target.value as ToggleFilter)
+            }
+            options={[
+              { label: 'Todos os pagamentos', value: 'all' },
+              { label: 'Pagamento pendente (fiado)', value: 'yes' },
+            ]}
+            value={filters.paymentPending}
           />
         </div>
 

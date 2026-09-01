@@ -74,6 +74,7 @@ export type ProductFilters = {
   status?: ProductStatus | 'all'
   lowStock?: boolean
   pendingData?: boolean
+  paymentPending?: boolean
 }
 
 export type ProductSummaryFilters = {
