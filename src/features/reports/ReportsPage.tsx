@@ -239,6 +239,7 @@ export function ReportsPage({
     data: professionals = [],
     error: professionalsError,
     isLoading: isLoadingProfessionals,
+    refetch: refetchProfessionals,
   } = useQuery({
     queryKey: ['professionals', { active: true }],
     queryFn: () => professionalRepository.list({ active: true }),
@@ -248,6 +249,7 @@ export function ReportsPage({
     data: services = [],
     error: servicesError,
     isLoading: isLoadingServices,
+    refetch: refetchServices,
   } = useQuery({
     queryKey: ['services', { active: true }],
     queryFn: () => serviceRepository.list({ active: true }),
@@ -257,6 +259,7 @@ export function ReportsPage({
     data: appointments = [],
     error: appointmentsError,
     isLoading: isLoadingAppointments,
+    refetch: refetchAppointments,
   } = useQuery({
     queryKey: [
       'appointments',
@@ -282,6 +285,14 @@ export function ReportsPage({
   const hasReportError = hasOptionsError || appointmentsError
   const isLoadingOptions = isLoadingProfessionals || isLoadingServices
   const isLoadingReport = isLoadingOptions || isLoadingAppointments
+
+  function retryReport() {
+    void Promise.all([
+      refetchAppointments(),
+      refetchProfessionals(),
+      refetchServices(),
+    ])
+  }
 
   useEffect(() => {
     if (
@@ -468,7 +479,14 @@ export function ReportsPage({
       ) : null}
 
       {hasReportError ? (
-        <ErrorState title="Nao foi possivel carregar o relatorio." />
+        <ErrorState
+          action={
+            <Button onClick={retryReport} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar o relatorio."
+        />
       ) : null}
 
       {isLoadingReport ? (
@@ -587,14 +605,15 @@ export function ReportsPage({
           ) : (
             <div className="mt-4 divide-y divide-stone-200">
               {summary.byService.map((service) => (
-                <div
+                <dl
                   className="grid gap-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_120px_140px]"
                   key={service.serviceId}
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-zinc-950">
+                    <dt className="sr-only">Serviço</dt>
+                    <dd className="truncate font-medium text-zinc-950">
                       {service.serviceName}
-                    </p>
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-zinc-500">
@@ -610,7 +629,7 @@ export function ReportsPage({
                       {formatCurrencyBRL(service.total)}
                     </dd>
                   </div>
-                </div>
+                </dl>
               ))}
             </div>
           )}
@@ -639,14 +658,15 @@ export function ReportsPage({
           ) : (
             <div className="mt-4 divide-y divide-stone-200">
               {summary.byProfessional.map((professional) => (
-                <div
+                <dl
                   className="grid gap-3 py-3 text-sm sm:grid-cols-[minmax(0,1fr)_120px_140px]"
                   key={professional.professionalId}
                 >
                   <div className="min-w-0">
-                    <p className="truncate font-medium text-zinc-950">
+                    <dt className="sr-only">Profissional</dt>
+                    <dd className="truncate font-medium text-zinc-950">
                       {professional.professionalName}
-                    </p>
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-zinc-500">
@@ -664,7 +684,7 @@ export function ReportsPage({
                       {formatCurrencyBRL(professional.total)}
                     </dd>
                   </div>
-                </div>
+                </dl>
               ))}
             </div>
           )}

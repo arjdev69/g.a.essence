@@ -3,6 +3,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import * as axe from 'axe-core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AppointmentDTO, AppointmentStatus } from '../domain/appointments'
 import { getAppointmentMonthRange } from '../utils/appointmentPeriod'
@@ -149,6 +150,114 @@ afterEach(() => {
 })
 
 describe('reports mobile and filters', () => {
+  it('não apresenta violações axe críticas ou sérias no estado completo', async () => {
+    const { container } = renderReports()
+    await settleQueries()
+
+    const results = await axe.run(container)
+    const seriousViolations = results.violations.filter((violation) =>
+      violation.impact === 'critical' || violation.impact === 'serious',
+    )
+
+    expect(seriousViolations).toEqual([])
+  })
+
+  it('expõe labels, estado de carregamento e estado vazio por filtro', async () => {
+    vi.mocked(appointmentRepository.list).mockImplementation(
+      () => new Promise(() => {}),
+    )
+    vi.mocked(professionalRepository.list).mockImplementation(
+      () => new Promise(() => {}),
+    )
+    vi.mocked(serviceRepository.list).mockImplementation(
+      () => new Promise(() => {}),
+    )
+
+    const { container } = renderReports()
+
+    expect(container.querySelector('[role="status"]')).not.toBeNull()
+    expect(container.querySelector('label[for="report-status"]')).not.toBeNull()
+
+    if (mountedRoot) {
+      act(() => {
+        mountedRoot?.unmount()
+      })
+      mountedContainer?.remove()
+      mountedRoot = null
+      mountedContainer = null
+    }
+
+    vi.mocked(appointmentRepository.list).mockResolvedValue([
+      makeAppointment('completed'),
+    ])
+    vi.mocked(professionalRepository.list).mockResolvedValue([
+      {
+        active: true,
+        createdAt: '2026-01-01T00:00:00Z',
+        defaultClinicFeePercentage: 30,
+        id: 'professional-1',
+        name: 'Ana Costa',
+        updatedAt: '2026-01-01T00:00:00Z',
+      },
+    ])
+    vi.mocked(serviceRepository.list).mockResolvedValue([
+      {
+        active: true,
+        clinicFeePercentage: 30,
+        createdAt: '2026-01-01T00:00:00Z',
+        defaultValue: 110,
+        durationMinutes: 60,
+        id: 'service-1',
+        name: 'Massagem relaxante',
+        updatedAt: '2026-01-01T00:00:00Z',
+      },
+    ])
+    const emptyView = renderReports()
+    await settleQueries()
+
+    const statusSelect = emptyView.container.querySelector<HTMLSelectElement>(
+      '#report-status',
+    )
+    act(() => {
+      if (statusSelect) {
+        statusSelect.value = 'scheduled'
+        statusSelect.dispatchEvent(new Event('change', { bubbles: true }))
+      }
+    })
+    await settleQueries()
+
+    expect(emptyView.container.textContent).toContain(
+      'Nenhum atendimento encontrado para estes filtros.',
+    )
+    expect(
+      Array.from(emptyView.container.querySelectorAll('button')).some(
+        (button) => button.textContent === 'Limpar filtros',
+      ),
+    ).toBe(true)
+  })
+
+  it('mostra erro recuperável e restaura o relatório após tentar novamente', async () => {
+    vi.mocked(appointmentRepository.list).mockRejectedValueOnce(
+      new Error('network failed'),
+    )
+    const { container } = renderReports()
+    await settleQueries()
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      'Nao foi possivel carregar o relatorio.',
+    )
+    const retryButton = Array.from(container.querySelectorAll('button')).find(
+      (button) => button.textContent === 'Tentar novamente',
+    )
+    expect(retryButton).not.toBeUndefined()
+
+    act(() => retryButton?.click())
+    await settleQueries()
+
+    expect(container.querySelector('[aria-label="Indicadores do relatório"]')).not.toBeNull()
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+  })
+
   it('oferece todos os status, chips e indicadores coerentes com as linhas filtradas', async () => {
     const { container } = renderReports()
     await settleQueries()
