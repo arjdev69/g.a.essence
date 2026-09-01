@@ -28,11 +28,11 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 19 — Exportação de atendimentos para calendário (active)
-- **Tasks concluídas neste bloco**: nenhuma
+- **Bloco atual**: 19 — Exportação de atendimentos para calendário (concluído; ready-for-merge)
+- **Tasks concluídas neste bloco**: T-077, T-078, T-079
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: executar PRE-006 e implementar T-077 com download ICS local no navegador
-- **Validação**: PRE-006-2 aprovado — `npm test` (14 arquivos, 75 testes), `npm run build` e `npm run lint` passaram; a primeira execução ampla registrou timeout intermitente no teste axe de relatório e a repetição passou; build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes axe no jsdom registram o aviso de canvas não implementado
+- **Próximo passo**: congelar a ponta e integrar o Bloco 19 em `develop` com merge local `--no-ff`
+- **Validação**: POST-006 aprovado — `npm test` (14 arquivos, 78 testes), `npm run build` e `npm run lint` passaram; axe não apontou violações critical/serious no escopo; contrato e fluxo cobrem download local, sucesso, erro recuperável, dados incompletos e variantes desktop/mobile; build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes axe no jsdom registram o aviso de canvas não implementado
 - **Tentativas de baseline pré-task**: PRE-006-1 → falhou por timeout de 5 s em `src/tests/reportPage.test.tsx` durante `npm test`; PRE-006-2 → aprovado: `npm test` (14 arquivos, 75 testes), `npm run build` e `npm run lint`
 - **Baseline inicial do bloco**: PRE-006-2 aprovado
 - **Rebaselines de comando**: nenhum
@@ -42,10 +42,10 @@ STATE_SCHEMA: 3
 - **Branch de integração**: develop
 - **Branch de trabalho**: feature/bloco-19-calendario
 - **Base da branch (SHA)**: 1c74928f81281b953e3b5d953d62b230f8eaf607
-- **Último commit de task validado**: nenhum
-- **Estado da integração**: active
-- **Tip congelado para integração**: nenhum
+- **Último commit de task validado**: 3ef73b6
+- **Estado da integração**: ready-for-merge
+- **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
 - **Arquivos dirty esperados**: nenhum
 - **Operação Git pendente**: none
 - **Push**: não solicitado
-- **Motivo da parada**: execução em andamento
+- **Motivo da parada**: bloco concluído e pronto para integração local
