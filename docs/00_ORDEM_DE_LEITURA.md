@@ -33,6 +33,11 @@ Use estes documentos nesta ordem:
 21. `21_PRODUCTS_UX_SPEC.md` - UX, layout e comportamentos de tela.
 22. `22_PRODUCTS_LAYOUT.md` - layout visual detalhado da secao de Produtos.
 23. `23_PRODUCTS_IMAGE_SPEC.md` - especificacao da imagem opcional do produto.
+24. `24_PRODUCTS_SPREADSHEET_MAPPING.md` - referencia da planilha atual para levantamento de Produtos.
+25. `25_PRODUCTS_TEST_SPEC.md` - testes de dominio, validacao, UI e regras de referencia de Produtos.
+26. `26_PRODUCTS_TASKS.md` - backlog tecnico incremental da secao de Produtos.
+27. `27_PRODUCTS_DATABASE.md` - schema, RLS e RPC atomica da secao de Produtos.
+28. `28_PRODUCTS_API_CONTRACTS.md` - DTOs, inputs, filtros e contratos dos repositories de Produtos.
 
 ## Fluxo recomendado
 
@@ -56,3 +61,4 @@ Nao implemente nada fora do escopo da task.
 8. Exportacao CSV.
 9. Polimento.
 10. Demo.
+11. Produtos.

@@ -7,6 +7,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { ProtectedRoute } from '../features/auth/ProtectedRoute'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { PatientsPage } from '../features/patients/PatientsPage'
+import { ProductsPage } from '../features/products/ProductsPage'
 import { ProfessionalsPage } from '../features/professionals/ProfessionalsPage'
 import { ReportsPage } from '../features/reports/ReportsPage'
 import { ServicesPage } from '../features/services/ServicesPage'
@@ -14,11 +15,6 @@ import {
   createAppointmentNavigationState,
   shouldOpenAppointmentFormFromState,
 } from './appointmentNavigation'
-
-const routes = [
-  { path: '/dashboard', label: 'Dashboard', actionLabel: 'Novo atendimento' },
-  { path: '/services', label: 'Serviços', actionLabel: 'Novo serviço' },
-]
 
 function PageAction({
   label,
@@ -67,45 +63,6 @@ function PageAction({
       <span className="hidden sm:inline">{label}</span>
     </button>
   )
-}
-
-function RoutePlaceholder({ label }: { label: string }) {
-  return (
-    <section className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-      <div className="max-w-2xl">
-        <p className="text-sm font-medium text-emerald-700">G.A Essência</p>
-        <h3 className="mt-3 text-2xl font-semibold">{label}</h3>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">
-          Layout aplicado. O conteudo desta tela sera implementado na task
-          correspondente.
-        </p>
-      </div>
-    </section>
-  )
-}
-
-function RouteContent({ label, path }: { label: string; path: string }) {
-  if (path === '/dashboard') {
-    return <DashboardPage />
-  }
-
-  if (path === '/patients') {
-    return <PatientsPage />
-  }
-
-  if (path === '/professionals') {
-    return <ProfessionalsPage />
-  }
-
-  if (path === '/services') {
-    return <ServicesPage />
-  }
-
-  if (path === '/reports') {
-    return <ReportsPage />
-  }
-
-  return <RoutePlaceholder label={label} />
 }
 
 function PatientsRoute() {
@@ -221,6 +178,27 @@ function ServicesRoute() {
   )
 }
 
+function ProductsRoute() {
+  const [createRequest, setCreateRequest] = useState(0)
+
+  return (
+    <ProtectedRoute>
+      <AppLayout
+        title="Produtos"
+        action={
+          <PageAction
+            label="Novo produto"
+            isReport={false}
+            onClick={() => setCreateRequest((current) => current + 1)}
+          />
+        }
+      >
+        <ProductsPage createRequest={createRequest} />
+      </AppLayout>
+    </ProtectedRoute>
+  )
+}
+
 function ReportsRoute() {
   const [clearFiltersRequest, setClearFiltersRequest] = useState(0)
   const [exportRequest, setExportRequest] = useState(0)
@@ -259,32 +237,8 @@ export function AppRoutes() {
       <Route path="/patients" element={<PatientsRoute />} />
       <Route path="/professionals" element={<ProfessionalsRoute />} />
       <Route path="/services" element={<ServicesRoute />} />
+      <Route path="/products" element={<ProductsRoute />} />
       <Route path="/reports" element={<ReportsRoute />} />
-      {routes
-        .filter(
-          (route) => route.path !== '/dashboard' && route.path !== '/services',
-        )
-        .map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={
-            <ProtectedRoute>
-              <AppLayout
-                title={route.label}
-                action={
-                  <PageAction
-                    label={route.actionLabel}
-                    isReport={route.path === '/reports'}
-                  />
-                }
-              >
-                <RouteContent label={route.label} path={route.path} />
-              </AppLayout>
-            </ProtectedRoute>
-          }
-        />
-      ))}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   )

@@ -3,7 +3,7 @@
 Layout visual detalhado para a secao de Produtos.
 
 Produto: G.A Essencia
-Objetivo: definir a composicao visual da pagina de Produtos de acordo com o padrao do app.
+Objetivo: definir a composicao visual da pagina de Produtos de acordo com o padrao do app e com as novas metricas de estoque, receita e lucro bruto.
 
 # 22 - Products Layout
 
@@ -15,13 +15,14 @@ O layout deve seguir a linguagem do restante do produto:
 - funcional;
 - com hierarquia evidente;
 - com pouco ruido visual;
-- com sensacao de ferramenta de trabalho, nao painel promocional.
+- com sensacao de ferramenta de trabalho;
+- sem parecer um painel contabil pesado.
 
 O modulo de Produtos deve parecer uma extensao natural do sistema, usando a mesma estrutura base:
 
 - sidebar fixa no desktop;
 - header com titulo e acao principal;
-- area de conteudo em cards e tabela;
+- area de conteudo com resumos e tabela;
 - mobile com cards e navegacao vertical.
 
 ## 2. Estrutura da pagina
@@ -31,10 +32,11 @@ O modulo de Produtos deve parecer uma extensao natural do sistema, usando a mesm
 O layout principal deve seguir esta ordem:
 
 1. header da pagina;
-2. faixa de metricas/resumo;
-3. barra de filtros e busca;
-4. tabela de produtos;
-5. painel lateral ou modal para cadastro/movimentacao.
+2. faixa de metricas de estoque e resultado;
+3. resumo de recebimento;
+4. barra de filtros e busca;
+5. tabela de produtos;
+6. modal ou painel lateral para cadastro, venda, entrada e historico.
 
 ### Mobile
 
@@ -42,9 +44,11 @@ O layout deve priorizar leitura rapida:
 
 1. header compacto;
 2. acao principal no topo;
-3. filtros em linha curta ou drawer;
-4. cards de produto;
-5. CTA contextual no rodape ou sticky button.
+3. cards de resumo em 2 colunas quando couber;
+4. busca;
+5. filtros essenciais;
+6. cards de produto;
+7. acoes em bottom sheet ou menu contextual.
 
 ## 3. Area superior
 
@@ -53,69 +57,67 @@ O layout deve priorizar leitura rapida:
 Conteudo:
 
 - titulo: `Produtos`;
-- subtitulo curto, opcional, como `Controle de estoque e movimentacoes`;
+- subtitulo curto: `Estoque, vendas e recebimentos`;
 - acao principal: `Novo produto`;
-- acao secundario opcional: `Registrar movimentacao`.
-
-Se houver imagem cadastrada no produto, ela deve aparecer como thumbnail pequena na lista e como preview no formulario ou detalhe.
+- acao secundaria: `Registrar venda`.
 
 Comportamento:
 
-- o botao principal deve ficar sempre no lado direito no desktop;
-- no mobile, a acao principal deve aparecer em formato de botao cheio;
+- o botao principal deve ficar no lado direito no desktop;
+- no mobile, a acao principal deve aparecer em largura total quando necessario;
 - o subtitulo nao deve competir com o titulo.
 
-### Barra de contexto
+### Faixa de metricas
 
-Logo abaixo do header, exibir um bloco discreto com:
+Cards sugeridos:
 
-- total de produtos ativos;
-- itens com estoque baixo;
-- estoque zerado;
-- movimentacoes recentes.
-
-Esse bloco funciona como leitura rapida, nao como dashboard completo.
-
-## 4. Cards de resumo
-
-Formato:
-
-- 4 cards em grid no desktop;
-- 2 colunas no tablet;
-- 1 ou 2 cards por linha no mobile.
+- `Produtos ativos`;
+- `Estoque baixo`;
+- `Valor em estoque`;
+- `Receita`;
+- `Lucro bruto`;
+- `Recebido`.
 
 Cada card deve conter:
 
 - label curto;
-- numero em destaque;
-- legenda de apoio;
-- pequeno indicador de cor.
+- numero ou moeda em destaque;
+- legenda curta;
+- indicador visual discreto.
 
-Sugestao de leitura visual:
+## 4. Resumo de recebimento
 
-- `Produtos ativos` com teal;
-- `Estoque baixo` com amber;
-- `Zerados` com red;
-- `Movimentacoes` com blue.
+Logo abaixo dos cards, exibir um resumo horizontal ou grid:
+
+```txt
+Pix | Cartao | Dinheiro | Total recebido
+```
+
+Regras:
+
+- no desktop, uma linha compacta;
+- no mobile, duas colunas;
+- nao competir visualmente com os cards principais;
+- valores devem usar formato BRL.
 
 ## 5. Bloco de filtros
 
-O bloco de filtros deve ficar imediatamente acima da lista.
-
 Elementos:
 
-- campo de busca por nome ou codigo;
+- busca por produto ou tamanho;
 - select de categoria;
 - select de status;
-- toggle ou select para estoque baixo;
-- botao `Limpar filtros`.
+- select de estoque baixo;
+- select de dados pendentes;
+- periodo inicial;
+- periodo final;
+- botao `Limpar`.
 
 Layout:
 
 - desktop em linha com quebra controlada;
-- mobile em pilha ou colapso por drawer;
-- botoes de acao alinhados a direita no desktop;
-- no mobile, filtros menos importantes podem ficar dentro de um painel recolhivel.
+- mobile em pilha ou painel recolhivel;
+- filtros de periodo devem ficar proximos por afinidade.
 
 ## 6. Lista principal
 
@@ -126,16 +128,18 @@ A lista deve usar tabela com densidade moderada.
 Colunas sugeridas:
 
 ```txt
-Produto | Categoria | Unidade | Saldo | Minimo | Status | Acoes
+Produto | Tam. | Saldo | Min. | Custo | Preco | Valor estoque | Vendidos | Receita | Recebido | Lucro | Status | Acoes
 ```
 
 Regras de exibicao:
 
+- `Produto` pode ter nome, tamanho e categoria juntos se a tela ficar estreita;
 - `Saldo` deve ser o valor mais proeminente da linha;
-- `Minimo` deve aparecer como referencia menor;
-- `Status` deve usar badge;
-- acoes devem ficar agrupadas no final.
-- quando existir imagem, o nome do produto pode vir acompanhado de thumbnail circular ou quadrada pequena.
+- `Preco` deve mostrar `Aberto` quando nao houver preco definido;
+- `Receita`, `Recebido` e `Lucro` devem respeitar o periodo filtrado;
+- `Status` deve usar badges curtas;
+- acoes devem ficar agrupadas no final;
+- se houver muitas acoes, usar menu de tres pontos.
 
 ### Mobile
 
@@ -145,43 +149,50 @@ Cada card deve mostrar:
 
 - imagem/thumbnail, quando existir;
 - nome do produto;
+- tamanho;
 - categoria;
-- unidade;
 - saldo atual;
 - estoque minimo;
-- badge de status;
-- alerta de estoque baixo, quando aplicavel;
+- preco de venda;
+- valor em estoque;
+- receita, recebido e lucro do periodo;
+- badges de status e pendencias;
 - menu de acoes.
 
 Estrutura visual do card:
 
-- topo com thumbnail opcional, nome e badge;
-- corpo com metadados em duas colunas;
+- topo com nome, tamanho e badge;
+- corpo com saldo e preco;
+- linha secundaria com receita/recebido/lucro;
 - rodape com acoes.
 
-## 7. Destaque de estoque
+## 7. Destaque de estoque e resultado
 
 ### Saldo atual
-
-O saldo deve ter maior destaque do que os demais metadados.
 
 Estado visual:
 
 - saldo normal: texto forte;
-- estoque baixo: texto ou badge em amber;
-- estoque zerado: badge em red;
-- produto inativo: opacidade reduzida ou badge neutra.
+- estoque baixo: badge amber;
+- estoque zerado: badge red;
+- produto inativo: opacidade reduzida e badge neutra.
 
-### Alertas
-
-O alerta de estoque baixo deve ser evidente, mas nao agressivo.
+### Preco aberto
 
 Regras:
 
-- aparecer dentro da linha ou card;
-- usar badge curta, como `Estoque baixo`;
-- nao bloquear a leitura dos demais dados;
-- permitir acao rapida para registrar entrada.
+- badge `Preco aberto`;
+- impedir venda rapida sem preencher preco;
+- mostrar como pendencia em filtros.
+
+### Lucro bruto
+
+Regras:
+
+- lucro positivo em verde discreto;
+- lucro zero em neutro;
+- lucro negativo em red;
+- nao misturar lucro bruto com receita da clinica dos atendimentos.
 
 ## 8. Area de acoes
 
@@ -190,30 +201,32 @@ Regras:
 Acoes por item:
 
 - editar;
-- inativar;
-- registrar entrada;
-- registrar saida;
-- ajustar estoque;
-- ver historico.
+- vender;
+- entrada;
+- uso interno;
+- perda;
+- ajustar;
+- historico;
+- inativar.
 
 Padrao:
 
-- usar menu de tres pontos se a lista ficar poluida;
-- manter a acao mais comum acessivel com menor friccao;
-- `Registrar entrada` pode virar acao primaria contextual quando houver estoque baixo.
+- `Vender` deve ser a acao primaria contextual;
+- `Entrada` pode ficar visivel quando houver estoque baixo;
+- demais acoes podem ir para menu.
 
 ### Mobile
 
-Acoes devem aparecer em menu curto ou bottom sheet.
-
 Ordem recomendada:
 
-1. editar;
-2. registrar entrada;
-3. registrar saida;
-4. ajustar estoque;
-5. ver historico;
-6. inativar.
+1. vender;
+2. entrada;
+3. editar;
+4. historico;
+5. ajustar;
+6. uso interno;
+7. perda;
+8. inativar.
 
 ## 9. Formulario de produto
 
@@ -223,19 +236,22 @@ O formulario deve ser apresentado em modal medio ou painel lateral.
 
 Layout sugerido:
 
-- coluna principal com campos;
-- coluna lateral com resumo visual e dicas.
+- grupo `Identificacao`: nome, tamanho, categoria, codigo;
+- grupo `Estoque`: unidade, estoque minimo;
+- grupo `Valores`: custo medio, preco de venda, preco aberto;
+- grupo `Observacoes`: notas e imagem opcional.
 
 Comportamento:
 
 - labels sempre acima dos campos;
+- campos monetarios com prefixo visual `R$`;
 - campos numericos com apoio textual;
 - CTA fixo no rodape do modal/painel;
-- opcao de cancelar claramente visivel.
+- cancelar claramente visivel.
 
 ### Mobile
 
-Preferencia por tela dedicada ou bottom sheet alto.
+Preferencia por bottom sheet alto ou tela dedicada.
 
 Comportamento:
 
@@ -243,66 +259,87 @@ Comportamento:
 - resumo curto no final;
 - botao de salvar sempre visivel.
 
-## 10. Formulario de movimentacao
+## 10. Formulario de venda
 
 Esse formulario precisa ser mais rapido que o de cadastro.
 
 Campos:
 
-- imagem do produto;
 - produto;
-- tipo de movimentacao;
 - quantidade;
+- preco unitario;
+- forma de pagamento;
+- status de recebimento;
+- valor recebido;
+- data operacional;
 - observacao.
 
 Painel de resumo:
 
 - saldo atual;
-- saldo estimado depois da operacao;
-- indicacao de entrada/saida/ajuste.
+- saldo depois;
+- receita;
+- custo;
+- lucro bruto;
+- recebido.
 
 Comportamento visual:
 
-- `entrada` com accent verde suave;
-- `saida` com accent amber ou red suave, sem excesso;
-- `ajuste` com azul discreto.
+- Pix com accent emerald;
+- cartao com accent blue;
+- dinheiro com accent stone;
+- pendente com accent amber;
+- erro de estoque insuficiente em red.
 
-## 11. Hierarquia de informacao
+## 11. Formulario de movimentacao
 
-Ordem de importancia visual:
+Campos:
 
-1. nome do produto;
-2. saldo atual;
-3. alerta de estoque;
-4. categoria e unidade;
-5. minimo e status;
-6. acoes.
+- produto;
+- tipo: entrada, uso interno, perda ou ajuste;
+- quantidade para entrada, uso interno e perda;
+- alteracao de estoque assinada para ajuste;
+- custo unitario quando entrada;
+- data operacional;
+- observacao.
 
-O usuario deve conseguir responder rapidamente:
+Painel de resumo:
 
-- o que e o produto;
-- quanto tem em estoque;
-- se precisa repor;
-- qual a proxima acao.
+- saldo atual;
+- saldo depois;
+- valor em estoque estimado.
 
-## 12. Estados visuais
+## 12. Historico
+
+Desktop:
+
+```txt
+Data | Tipo | Qtd. | Saldo | Preco | Receita | Recebido | Lucro | Obs.
+```
+
+Mobile:
+
+- cards por movimento;
+- data e tipo no topo;
+- quantidade e saldo em destaque;
+- valores financeiros apenas quando existirem.
+
+## 13. Estados visuais
 
 ### Loading
 
-- skeleton para cards, filtros e tabela;
-- evitar telas vazias enquanto carrega.
+- skeleton para cards, filtros, recebimento e tabela.
 
 ### Empty state
 
 Quando nao houver produtos:
 
-- ilustração ou bloco discreto;
 - texto curto;
 - botao `Novo produto`.
 
 ### Sem resultado
 
-Quando os filtros nao retornarem dados:
+Quando filtros nao retornarem dados:
 
 - mensagem clara;
 - botao para limpar filtros.
@@ -312,25 +349,35 @@ Quando os filtros nao retornarem dados:
 - mensagem curta e objetiva;
 - acao para tentar novamente.
 
-## 13. Cores e feedback
+### Dados pendentes
+
+Quando houver preco aberto ou custo ausente:
+
+- badge na linha;
+- filtro dedicado;
+- mensagem objetiva no formulario.
+
+## 14. Cores e feedback
 
 Usar a base visual atual do app:
 
 - fundo claro;
 - cards brancos;
 - bordas sutis;
-- destaque teal como cor principal;
+- destaque emerald/teal como cor principal;
 - amber para alerta;
 - red para criticidade;
-- blue para informacao.
+- blue para informacao;
+- stone/zinc para estados neutros.
 
 Regras:
 
-- nao transformar a tela em painel contábil pesado;
 - manter contraste suficiente;
-- evitar saturacao excessiva em listas longas.
+- evitar saturacao excessiva;
+- evitar criar uma tela com visual de planilha pesada;
+- valores financeiros devem ser legiveis, mas nao dominar o fluxo de estoque.
 
-## 14. Espaçamento e densidade
+## 15. Espacamento e densidade
 
 O modulo deve ser compacto, mas legivel.
 
@@ -339,20 +386,23 @@ Recomendacoes:
 - grid principal com respiro consistente;
 - cards com padding padrao do app;
 - linhas de tabela sem altura excessiva;
-- uso de badge curta para nao quebrar layout.
+- uso de badge curta para nao quebrar layout;
+- colunas monetarias alinhadas de forma consistente.
 
-## 15. Fluxo visual principal
+## 16. Fluxo visual principal
 
 ```txt
-Produtos -> Ver resumo -> Filtrar -> Abrir produto -> Registrar movimento -> Conferir saldo
+Produtos -> Ver resumo -> Filtrar -> Vender produto -> Conferir saldo/receita/lucro -> Ver historico
 ```
 
-## 16. Resultado esperado
+## 17. Resultado esperado
 
 Ao final, a tela de Produtos deve permitir:
 
-- consultar estoque sem esforço;
+- consultar estoque sem esforco;
 - identificar urgencia de reposicao;
 - cadastrar e ajustar itens com clareza;
+- registrar venda com forma de pagamento;
+- acompanhar receita, recebido e lucro bruto;
 - operar bem no desktop e no celular;
 - manter o mesmo nivel de simplicidade do restante do G.A Essencia.

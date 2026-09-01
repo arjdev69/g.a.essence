@@ -124,6 +124,66 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          average_cost: number | null
+          category: string | null
+          created_at: string
+          current_stock: number
+          id: string
+          image_url: string | null
+          internal_code: string | null
+          minimum_stock: number
+          name: string
+          notes: string | null
+          sale_price: number | null
+          sale_price_open: boolean
+          size: string
+          status: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_cost?: number | null
+          category?: string | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          image_url?: string | null
+          internal_code?: string | null
+          minimum_stock?: number
+          name: string
+          notes?: string | null
+          sale_price?: number | null
+          sale_price_open?: boolean
+          size: string
+          status?: string
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_cost?: number | null
+          category?: string | null
+          created_at?: string
+          current_stock?: number
+          id?: string
+          image_url?: string | null
+          internal_code?: string | null
+          minimum_stock?: number
+          name?: string
+          notes?: string | null
+          sale_price?: number | null
+          sale_price_open?: boolean
+          size?: string
+          status?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       professionals: {
         Row: {
           active: boolean
@@ -162,6 +222,77 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          amount_received: number
+          cost_value: number
+          created_at: string
+          gross_profit_value: number
+          id: string
+          notes: string | null
+          occurred_at: string
+          payment_method: string | null
+          product_id: string
+          quantity: number
+          receipt_status: string | null
+          revenue_value: number
+          stock_delta: number
+          type: string
+          unit_cost: number | null
+          unit_sale_price: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_received?: number
+          cost_value?: number
+          created_at?: string
+          gross_profit_value?: number
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          payment_method?: string | null
+          product_id: string
+          quantity: number
+          receipt_status?: string | null
+          revenue_value?: number
+          stock_delta: number
+          type: string
+          unit_cost?: number | null
+          unit_sale_price?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_received?: number
+          cost_value?: number
+          created_at?: string
+          gross_profit_value?: number
+          id?: string
+          notes?: string | null
+          occurred_at?: string
+          payment_method?: string | null
+          product_id?: string
+          quantity?: number
+          receipt_status?: string | null
+          revenue_value?: number
+          stock_delta?: number
+          type?: string
+          unit_cost?: number | null
+          unit_sale_price?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'stock_movements_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+        ]
       }
       services: {
         Row: {
@@ -204,7 +335,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_stock_movement: {
+        Args: {
+          input_adjustment_delta?: number | null
+          input_amount_received?: number
+          input_notes?: string | null
+          input_occurred_at?: string | null
+          input_payment_method?: string | null
+          input_product_id: string
+          input_quantity: number
+          input_receipt_status?: string | null
+          input_type: string
+          input_unit_cost?: number | null
+          input_unit_sale_price?: number | null
+        }
+        Returns: Database['public']['Tables']['stock_movements']['Row']
+      }
     }
     Enums: {
       [_ in never]: never
