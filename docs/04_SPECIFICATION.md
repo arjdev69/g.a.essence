@@ -156,3 +156,130 @@ Serviços:
 - Drenagem Linfática — 160 — 60 min — 30%.
 - Brinde massagem facial — 0 — 30 min — 0%.
 - Brinde SPA dos pés — 0 — 30 min — 0%.
+
+## FEATURE-013 Mobile Navigation V2
+
+Entradas:
+- viewport atual;
+- rota atual;
+- interação do botão Menu, backdrop, Fechar ou tecla `Escape`.
+
+Regras:
+- desktop mantém sidebar;
+- mobile não renderiza menu fixo no rodapé;
+- drawer contém todas as rotas internas;
+- drawer aberto bloqueia interação e rolagem do conteúdo de fundo;
+- fechamento restaura foco ao botão Menu.
+
+Aceite: CA-001, CA-002, CA-003 e CA-004.
+
+## FEATURE-014 Appointment Period and Filters V2
+
+Entradas:
+- `dateFrom` e `dateTo` inclusivos;
+- busca textual;
+- `patientId`, `professionalId`, `serviceId` e `status` opcionais.
+
+Regras:
+- default é o mês corrente;
+- mês anterior/próximo e seleção direta calculam primeiro/último dia;
+- intervalo personalizado inválido não dispara nova consulta;
+- filtros estruturados são combinados por `AND`;
+- filtros ativos ficam visíveis e podem ser removidos;
+- limpar restaura defaults.
+
+Saídas:
+- lista filtrada;
+- quantidade de resultados;
+- chips ativos;
+- estado `sem resultados`, distinto de erro.
+
+Aceite: CA-005 a CA-012.
+
+## FEATURE-015 Mobile Appointment Cards V2
+
+Conteúdo obrigatório:
+- paciente;
+- serviço;
+- profissional;
+- data e hora;
+- valor;
+- clínica/profissional;
+- status financeiro ou não financeiro.
+
+Ações:
+- `Editar` visível;
+- `Adicionar ao calendário` no menu Mais ações;
+- `Remover` no menu Mais ações com confirmação contextual.
+
+Aceite: CA-013 a CA-016.
+
+## FEATURE-016 Monthly Report Status V2
+
+Inputs:
+- month;
+- year;
+- status opcional;
+- professionalId opcional;
+- serviceId opcional.
+
+Outputs:
+- totalCount: todos os registros filtrados;
+- financialCount: registros `completed` ou `paid`;
+- totalRevenue;
+- totalClinicRevenue;
+- totalProfessionalRevenue;
+- cancelledCount;
+- noShowCount;
+- rows;
+- byService;
+- byProfessional.
+
+Regras:
+- detalhamento, indicadores, agrupamentos e CSV compartilham o conjunto filtrado;
+- `scheduled`, `cancelled` e `no_show` não entram nos valores financeiros;
+- status selecionado aparece entre os filtros ativos;
+- CSV mantém a coluna Status.
+
+Aceite: CA-017 a CA-021.
+
+## FEATURE-017 Mobile Appointment Form V2
+
+Ordem:
+1. paciente;
+2. serviço;
+3. profissional, apenas quando houver escolha real;
+4. data e hora;
+5. status;
+6. valor e percentual;
+7. observação;
+8. resumo do repasse;
+9. salvar.
+
+Regras:
+- serviço preenche valor e percentual;
+- cálculo reage às alterações válidas;
+- envio em andamento bloqueia nova submissão;
+- erro permanece associado ao campo ou ao formulário e informa como tentar novamente.
+
+Aceite: CA-022 a CA-025.
+
+## FEATURE-018 Mobile Screen Consistency and States V2
+
+Telas:
+- login;
+- dashboard;
+- atendimentos;
+- formulário de atendimento;
+- pacientes;
+- profissionais;
+- serviços;
+- relatórios.
+
+Regras:
+- sem tabela horizontal entre `320px` e `430px`;
+- ação principal identificável por texto;
+- carregando, vazio inicial, filtro sem resultado, erro e sucesso são estados distintos;
+- conteúdo dinâmico crítico é anunciado a tecnologias assistivas.
+
+Aceite: CA-026, CA-027 e CA-028.

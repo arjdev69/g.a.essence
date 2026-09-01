@@ -250,15 +250,15 @@ O botao de calendario pode ser:
 
 ## 14. Checklist de Sprint
 
-- [ ] definir formato do evento;
-- [ ] definir dados exibidos no calendario;
-- [ ] decidir destino da acao;
-- [ ] ajustar layout desktop;
-- [ ] ajustar layout mobile;
-- [ ] definir feedback de sucesso e erro;
-- [ ] validar acessibilidade;
-- [ ] revisar consistencia visual com o restante do app;
-- [ ] escrever testes, se houver logica reaproveitavel.
+- [x] definir formato do evento;
+- [x] definir dados exibidos no calendario;
+- [x] decidir destino da acao;
+- [x] ajustar layout desktop;
+- [x] ajustar layout mobile;
+- [x] definir feedback de sucesso e erro;
+- [x] validar acessibilidade;
+- [x] revisar consistencia visual com o restante do app;
+- [x] escrever testes, se houver logica reaproveitavel.
 
 ## 15. Observacoes de Produto
 
@@ -271,3 +271,7 @@ simples -> util -> compativel -> evolutivo
 ```
 
 Para o MVP, a melhor base tende a ser um evento universal em `.ics`, porque reduz dependencia de terceiros e funciona em varios calendarios.
+
+## 16. Status da implementação
+
+Sprint concluída no Bloco 19. O MVP gera um `.ics` localmente, dispara o download no navegador, mantém a ação acessível na tabela desktop e no menu do card mobile, anuncia sucesso/erro e bloqueia atendimentos com dados obrigatórios incompletos.

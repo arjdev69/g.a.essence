@@ -81,10 +81,123 @@ describe('createMonthlySummary', () => {
     expect(summary.totalRevenue).toBe(270)
     expect(summary.totalClinicRevenue).toBe(81)
     expect(summary.totalProfessionalRevenue).toBe(189)
+    expect(summary.totalCount).toBe(5)
+    expect(summary.financialCount).toBe(3)
     expect(summary.appointmentCount).toBe(3)
     expect(summary.cancelledCount).toBe(1)
     expect(summary.noShowCount).toBe(1)
     expect(summary.giftCount).toBe(1)
+  })
+
+  it.each([
+    ['scheduled', 0],
+    ['cancelled', 1],
+    ['no_show', 1],
+  ] as const)(
+    'keeps %s rows visible while reporting zero financial totals',
+    (status, expectedCount) => {
+      const appointments = [
+        makeAppointment({
+          clinicFeeValue: 33,
+          professionalGainValue: 77,
+          status: 'completed',
+          value: 110,
+        }),
+        makeAppointment({
+          clinicFeeValue: 33,
+          professionalGainValue: 77,
+          status: 'cancelled',
+          value: 110,
+        }),
+        makeAppointment({
+          clinicFeeValue: 30,
+          professionalGainValue: 70,
+          status: 'no_show',
+          value: 100,
+        }),
+      ]
+
+      const summary = createMonthlySummary(
+        { month: 6, status, year: 2026 },
+        appointments,
+      )
+
+      expect(summary.totalCount).toBe(expectedCount)
+      expect(summary.financialCount).toBe(0)
+      expect(summary.totalRevenue).toBe(0)
+      expect(summary.totalClinicRevenue).toBe(0)
+      expect(summary.totalProfessionalRevenue).toBe(0)
+      expect(summary.rows.every((appointment) => appointment.status === status))
+        .toBe(true)
+    },
+  )
+
+  it('applies status, professional and service filters to one row set', () => {
+    const appointments = [
+      makeAppointment({
+        clinicFeeValue: 33,
+        professionalGainValue: 77,
+        professionalId: 'professional-1',
+        serviceId: 'service-1',
+        status: 'completed',
+        value: 110,
+      }),
+      makeAppointment({
+        clinicFeeValue: 48,
+        professionalGainValue: 112,
+        professionalId: 'professional-2',
+        serviceId: 'service-1',
+        status: 'completed',
+        value: 160,
+      }),
+      makeAppointment({
+        clinicFeeValue: 33,
+        professionalGainValue: 77,
+        professionalId: 'professional-1',
+        serviceId: 'service-2',
+        status: 'completed',
+        value: 110,
+      }),
+    ]
+
+    const summary = createMonthlySummary(
+      {
+        month: 6,
+        professionalId: 'professional-1',
+        serviceId: 'service-1',
+        status: 'completed',
+        year: 2026,
+      },
+      appointments,
+    )
+
+    expect(summary.rows).toHaveLength(1)
+    expect(summary.totalCount).toBe(1)
+    expect(summary.financialCount).toBe(1)
+    expect(summary.byProfessional).toHaveLength(1)
+    expect(summary.byService).toHaveLength(1)
+  })
+
+  it('summarizes one thousand loaded appointments within 500ms', () => {
+    const appointments = Array.from({ length: 1_000 }, (_, index) =>
+      makeAppointment({
+        clinicFeeValue: 33,
+        id: `appointment-${index}`,
+        professionalGainValue: 77,
+        status: index % 2 === 0 ? 'completed' : 'scheduled',
+        value: 110,
+      }),
+    )
+    const start = performance.now()
+    const summary = createMonthlySummary(
+      { month: 6, status: 'completed', year: 2026 },
+      appointments,
+    )
+    const duration = performance.now() - start
+
+    expect(summary.totalCount).toBe(500)
+    expect(summary.financialCount).toBe(500)
+    expect(duration).toBeLessThan(500)
   })
 
   it('exports monthly report rows as CSV', () => {
@@ -115,4 +228,55 @@ describe('createMonthlySummary', () => {
     expect(lines[1].split(';')).toHaveLength(9)
     expect(lines[1]).toContain('Realizado')
   })
+
+  it.each([
+    ['scheduled', 'Agendado'],
+    ['completed', 'Realizado'],
+    ['paid', 'Pago'],
+    ['cancelled', 'Cancelado'],
+    ['no_show', 'Faltou'],
+  ] as const)(
+    'exports exactly the rows visible for status %s',
+    (status, statusLabel) => {
+      const statuses = [
+        'scheduled',
+        'completed',
+        'paid',
+        'cancelled',
+        'no_show',
+      ] as const
+      const appointments = statuses.map((appointmentStatus, index) =>
+        makeAppointment({
+          clinicFeeValue: appointmentStatus === 'completed' ? 33 : 0,
+          id: `appointment-${appointmentStatus}`,
+          patientName: `Paciente ${index + 1}`,
+          professionalGainValue: appointmentStatus === 'completed' ? 77 : 0,
+          status: appointmentStatus,
+          value: 110,
+        }),
+      )
+      const input = { month: 6, status, year: 2026 }
+      const summary = createMonthlySummary(input, appointments)
+      const csv = createMonthlyReportCsv(input, summary)
+      const dataLines = csv.content.split('\n').slice(1)
+      const exportedPatients = dataLines.map((line) => line.split(';')[2])
+
+      expect(summary.rows.map((appointment) => appointment.patientName)).toEqual(
+        exportedPatients,
+      )
+      expect(dataLines).toHaveLength(1)
+      expect(dataLines[0]).toContain(statusLabel)
+      expect(dataLines[0]).not.toContain(
+        statusLabelsForTest.find((label) => label !== statusLabel),
+      )
+    },
+  )
 })
+
+const statusLabelsForTest = [
+  'Agendado',
+  'Realizado',
+  'Pago',
+  'Cancelado',
+  'Faltou',
+]

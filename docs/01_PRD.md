@@ -146,3 +146,55 @@ V5: app Flutter.
 - baixa adoção inicial.
 
 Mitigação: MVP simples, testes de cálculo e validação com usuários reais.
+
+## 12. Evolução UX Mobile-first V2
+
+### 12.1 Contexto
+
+A usuária principal opera o sistema predominantemente pelo iPhone e relatou dificuldade para navegar, rolar páginas e combinar filtros. O menu fixo inferior ocupa a área de gesto do aparelho, a agenda permite apenas uma data exata e o relatório não permite filtrar por status.
+
+### 12.2 Objetivo
+
+Tornar o uso diário simples em telas de `320px` a `430px`, preservando a experiência desktop e permitindo que a usuária:
+
+- navegue sem elementos cobrindo o conteúdo;
+- consulte atendimentos de qualquer mês ou período personalizado;
+- reconheça e remova filtros ativos;
+- confira totais financeiros coerentes com o status selecionado;
+- crie ou edite um atendimento sem perder de vista o repasse;
+- conclua as tarefas principais com alvos de toque adequados e mensagens claras.
+
+### 12.3 Funcionalidades da evolução
+
+- **RF-020 — Navegação mobile por menu lateral**: substituir a navegação inferior fixa por drawer acionado pelo cabeçalho.
+- **RF-021 — Período da agenda**: consultar mês atual, meses anteriores ou posteriores e intervalo personalizado.
+- **RF-022 — Filtros combinados da agenda**: combinar busca, período, status, paciente, profissional e serviço, exibindo os filtros ativos.
+- **RF-023 — Cards e ações de atendimento no celular**: apresentar dados essenciais e hierarquizar editar, calendário e remoção.
+- **RF-024 — Relatório por status**: aplicar o status aos detalhes, indicadores e CSV, distinguindo volume total de volume financeiro.
+- **RF-025 — Formulário mobile de atendimento**: reduzir esforço, preservar cálculo ao vivo e impedir submissão duplicada.
+- **RF-026 — Consistência das telas mobile**: aplicar o mesmo sistema visual a login, dashboard, pacientes, profissionais e serviços.
+- **RF-027 — Estados e feedback acessíveis**: padronizar carregamento, vazio, filtro sem resultado, erro e sucesso.
+
+### 12.4 Métricas de sucesso da evolução
+
+- a usuária encontra atendimentos de outro mês em até três interações após abrir a agenda;
+- nenhum controle fixo cobre conteúdo ou a área de gesto do iPhone;
+- o conjunto de filtros visível na tela é idêntico ao usado na exportação;
+- criar um atendimento continua possível em até 30 segundos com dados previamente cadastrados;
+- todas as telas funcionam sem rolagem horizontal a partir de `320px`;
+- alvos de toque essenciais medem ao menos `44 × 44px`.
+
+### 12.5 Premissas
+
+| Premissa | Default assumido | Racional | Origem |
+|---|---|---|---|
+| Plataforma prioritária | Web responsiva instalada ou aberta no iPhone | É o dispositivo predominante da usuária principal | Relato do usuário |
+| Navegação mobile | Drawer pelo cabeçalho; sem menu fixo inferior | Libera a rolagem e evita conflito com a barra de gesto | Protótipo aprovado |
+| Período inicial da agenda | Mês corrente | Favorece operação e conferência mensal | Revisão UX aprovada |
+| Aplicação de filtros | Atualização imediata, sem botão Aplicar | Reduz etapas em uma rotina frequente | Protótipo aprovado |
+| Regras financeiras | Apenas `completed` e `paid` compõem faturamento | Preserva as regras RN-006 a RN-008 | Documentação existente |
+| Desktop | Sidebar e tabelas continuam disponíveis | A evolução é mobile-first, não mobile-only | Escopo existente |
+
+### 12.6 Questões em aberto
+
+N/A — as decisões necessárias para a primeira implementação foram resolvidas no protótipo aprovado.

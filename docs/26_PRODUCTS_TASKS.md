@@ -216,9 +216,13 @@ Criar exportacao CSV do resumo de produtos.
 
 ### TASK-P035
 
+- [x] Responsividade mobile da tela de produtos validada com cards, filtros e ações essenciais em alvos de toque de 44px; campos de entrada usam 16px no mobile e não há tabela na variante mobile.
+
 Responsividade mobile da tela de produtos.
 
 ### TASK-P036
+
+- [x] Formulários de cadastro, entrada, ajuste e venda revisados com labels associados, ajuda anunciável, ações nomeadas e cobertura automatizada.
 
 Revisar acessibilidade dos formularios e acoes.
 

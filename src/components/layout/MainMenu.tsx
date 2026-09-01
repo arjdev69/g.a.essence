@@ -30,38 +30,48 @@ function getDesktopNavLinkClass({ isActive }: { isActive: boolean }) {
 
 function getMobileNavLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    'inline-flex min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-[11px] leading-4 transition-colors',
+    'flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2',
     isActive
       ? 'bg-emerald-50 font-medium text-emerald-800'
       : 'text-zinc-800',
   ].join(' ')
 }
 
-export function MainMenu({ variant }: { variant: 'desktop' | 'mobile' }) {
+export function MainMenu({
+  onNavigate,
+  variant,
+}: {
+  onNavigate?: () => void
+  variant: 'desktop' | 'mobile'
+}) {
   const isDesktop = variant === 'desktop'
 
   return (
-    <nav aria-label="Principal" className={isDesktop ? 'flex-1 p-4' : ''}>
+    <nav
+      aria-label="Principal"
+      className={isDesktop ? 'flex-1 p-4' : 'min-h-0 flex-1 overflow-y-auto p-4'}
+    >
       <ul
         className={
           isDesktop
             ? 'space-y-1'
-            : 'flex gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
+            : 'space-y-1'
         }
       >
         {navigationItems.map((item) => {
           const Icon = item.icon
 
           return (
-            <li key={item.path} className={isDesktop ? undefined : 'shrink-0'}>
+            <li key={item.path}>
               <NavLink
                 className={
                   isDesktop ? getDesktopNavLinkClass : getMobileNavLinkClass
                 }
+                onClick={onNavigate}
                 to={item.path}
               >
                 <Icon
-                  className={isDesktop ? 'h-5 w-5' : 'h-4 w-4'}
+                  className="h-5 w-5"
                   aria-hidden="true"
                 />
                 <span>{item.label}</span>

@@ -54,6 +54,7 @@ export function ServiceForm({
       ) : null}
 
       <Input
+        className="min-h-11 text-base sm:text-sm"
         disabled={disabled}
         error={errors.name?.message}
         label="Nome"
@@ -62,6 +63,7 @@ export function ServiceForm({
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.defaultValue?.message}
           label="Valor padrao"
@@ -72,6 +74,7 @@ export function ServiceForm({
         />
 
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.durationMinutes?.message}
           label="Duracao"
@@ -82,6 +85,7 @@ export function ServiceForm({
         />
 
         <Input
+          className="min-h-11 text-base sm:text-sm"
           disabled={disabled}
           error={errors.clinicFeePercentage?.message}
           label="Percentual"
@@ -93,7 +97,7 @@ export function ServiceForm({
         />
       </div>
 
-      <label className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900">
+      <label className="flex min-h-11 items-center gap-3 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900">
         <input
           className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-700"
           disabled={disabled}
@@ -106,6 +110,7 @@ export function ServiceForm({
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {onCancel ? (
           <Button
+            className="min-h-11"
             disabled={disabled}
             onClick={onCancel}
             type="button"
@@ -114,7 +119,7 @@ export function ServiceForm({
             Cancelar
           </Button>
         ) : null}
-        <Button disabled={disabled} type="submit">
+        <Button className="min-h-11" disabled={disabled} type="submit">
           {submitLabel}
         </Button>
       </div>

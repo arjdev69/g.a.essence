@@ -32,6 +32,8 @@ export type AppointmentDTO = Omit<Appointment, 'userId'> & {
 
 export type AppointmentFilters = {
   date?: string
+  dateFrom?: string
+  dateTo?: string
   patientId?: string
   professionalId?: string
   serviceId?: string

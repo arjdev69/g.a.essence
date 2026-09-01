@@ -284,6 +284,7 @@ export function ProductForm({
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
+                  className="min-h-11"
                   disabled={disabled || isUploadingImage}
                   icon={<Upload className="h-4 w-4" aria-hidden="true" />}
                   onClick={handleBrowseImage}
@@ -293,6 +294,7 @@ export function ProductForm({
                   {selectedImageFile ? 'Trocar imagem' : 'Selecionar imagem'}
                 </Button>
                 <Button
+                  className="min-h-11"
                   disabled={disabled || isUploadingImage || (!imagePreviewUrl && !initialImageUrl)}
                   icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
                   onClick={handleRemoveImage}
@@ -373,7 +375,7 @@ export function ProductForm({
           />
         </div>
 
-        <label className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900">
+        <label className="flex min-h-11 items-center gap-3 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900">
           <input
             className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-700"
             disabled={disabled}
@@ -411,7 +413,7 @@ export function ProductForm({
             aria-describedby={errors.notes ? 'notes-error' : undefined}
             aria-invalid={Boolean(errors.notes)}
             className={cn(
-              'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500',
+              'min-h-28 w-full resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 text-base text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-zinc-500 sm:text-sm',
               errors.notes &&
                 'border-red-500 focus:border-red-600 focus:ring-red-600/20',
             )}
@@ -431,6 +433,7 @@ export function ProductForm({
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {onCancel ? (
           <Button
+            className="min-h-11"
             disabled={disabled}
             onClick={onCancel}
             type="button"
@@ -439,7 +442,7 @@ export function ProductForm({
             Cancelar
           </Button>
         ) : null}
-        <Button disabled={disabled} type="submit">
+        <Button className="min-h-11" disabled={disabled} type="submit">
           {isUploadingImage ? 'Enviando imagem...' : submitLabel}
         </Button>
       </div>

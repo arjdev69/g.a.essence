@@ -1,5 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+  MoreHorizontal,
+  Pencil,
+  RotateCcw,
+  Trash2,
+  X,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
@@ -22,13 +31,21 @@ import type {
   AppointmentDTO,
   AppointmentStatus,
 } from '../../domain/appointments/appointment.types'
-import { prepareAppointmentCalendarInput } from '../../domain/calendar'
+import {
+  createAppointmentCalendarIcs,
+  prepareAppointmentCalendarInput,
+} from '../../domain/calendar'
 import { appointmentRepository } from '../../repositories/appointment.repository'
-import { uploadAppointmentCalendarFile } from '../../repositories/calendar.repository'
 import { patientRepository } from '../../repositories/patient.repository'
 import { professionalRepository } from '../../repositories/professional.repository'
 import { serviceRepository } from '../../repositories/service.repository'
+import {
+  getAppointmentMonthRange,
+  isValidAppointmentDateRange,
+  type AppointmentDateRange,
+} from '../../utils/appointmentPeriod'
 import { formatCurrencyBRL } from '../../utils/formatCurrencyBRL'
+import { downloadFile } from '../../services/export'
 import { AppointmentForm } from './AppointmentForm'
 import type { AppointmentFormData } from './appointment.schema'
 
@@ -42,6 +59,8 @@ type AppointmentFormMode =
   | { appointment: AppointmentDTO; type: 'edit' }
 
 type AppointmentStatusFilter = AppointmentStatus | 'all'
+type AppointmentPeriodMode = 'month' | 'custom'
+type MonthSelection = { month: number; year: number }
 
 const statusLabels: Record<AppointmentStatus, string> = {
   cancelled: 'Cancelado',
@@ -69,20 +88,76 @@ function formatOptional(value: string | null | undefined) {
   return value?.trim() ? value : '-'
 }
 
+function getCurrentMonthSelection(now = new Date()): MonthSelection {
+  return { month: now.getMonth() + 1, year: now.getFullYear() }
+}
+
+function formatMonthInputValue(selection: MonthSelection) {
+  return `${String(selection.year).padStart(4, '0')}-${String(selection.month).padStart(2, '0')}`
+}
+
+function formatMonthLabel(selection: MonthSelection) {
+  const label = new Intl.DateTimeFormat('pt-BR', {
+    month: 'long',
+    timeZone: 'UTC',
+    year: 'numeric',
+  }).format(new Date(Date.UTC(selection.year, selection.month - 1, 1)))
+
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
+function getDateRangeError(dateFrom: string, dateTo: string) {
+  if (!dateFrom || !dateTo) {
+    return 'Informe as datas inicial e final.'
+  }
+
+  return isValidAppointmentDateRange({ dateFrom, dateTo })
+    ? null
+    : 'A data inicial deve ser anterior ou igual à data final.'
+}
+
+function formatDateRangeLabel(range: AppointmentDateRange) {
+  return `${formatDate(range.dateFrom)} a ${formatDate(range.dateTo)}`
+}
+
 function getAppointmentSubject(appointment: AppointmentDTO) {
   return appointment.patientName?.trim() || 'atendimento'
+}
+
+function ActiveFilterChip({
+  label,
+  onRemove,
+}: {
+  label: string
+  onRemove: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`Remover filtro ${label}`}
+      className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+      onClick={onRemove}
+    >
+      <span>{label}</span>
+      <X className="h-3.5 w-3.5" aria-hidden="true" />
+    </button>
+  )
 }
 
 function CalendarCalendarButton({
   appointment,
   className,
   isDisabled,
+  isExporting,
   onClick,
+  role,
 }: {
   appointment: AppointmentDTO
   className?: string
   isDisabled: boolean
+  isExporting: boolean
   onClick: (appointment: AppointmentDTO) => void
+  role?: 'menuitem'
 }) {
   const calendarValidation = prepareAppointmentCalendarInput(appointment)
   const isCalendarDisabled = isDisabled || !calendarValidation.ok
@@ -90,10 +165,12 @@ function CalendarCalendarButton({
   return (
     <Button
       aria-label={`Adicionar atendimento de ${getAppointmentSubject(appointment)} ao calendario`}
-      className={className}
+      className={`min-h-11 ${className ?? ''}`}
       disabled={isCalendarDisabled}
-      icon={null}
+      icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
+      aria-busy={isExporting}
       onClick={() => onClick(appointment)}
+      role={role}
       size="sm"
       title={
         calendarValidation.ok
@@ -102,7 +179,7 @@ function CalendarCalendarButton({
       }
       variant="secondary"
     >
-      Adicionar ao calendario
+      {isExporting ? 'Gerando calendario...' : 'Adicionar ao calendario'}
     </Button>
   )
 }
@@ -141,6 +218,7 @@ function AppointmentActions({
         appointment={appointment}
         className="shrink-0"
         isDisabled={isDisabled}
+        isExporting={isCalendarExporting}
         onClick={onCalendarClick}
       />
       <Button
@@ -176,35 +254,67 @@ function AppointmentCardActions({
 }) {
   const subject = getAppointmentSubject(appointment)
   const isDisabled = isMutating || isCalendarExporting
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <div className="mt-3 space-y-2">
-      <CalendarCalendarButton
-        appointment={appointment}
-        className="w-full"
-        isDisabled={isDisabled}
-        onClick={onCalendarClick}
-      />
+    <div className="mt-4 flex items-center justify-between gap-3 border-t border-stone-100 pt-3">
+      <Button
+        aria-label={`Editar atendimento de ${subject}`}
+        className="min-h-11 flex-1 justify-start px-3 sm:flex-none"
+        disabled={isDisabled}
+        icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
+        onClick={() => onEdit(appointment)}
+        title="Editar atendimento"
+        variant="ghost"
+      >
+        Editar
+      </Button>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="relative">
         <Button
-          aria-label={`Editar atendimento de ${subject}`}
+          aria-expanded={isMenuOpen}
+          aria-haspopup="menu"
+          aria-label={`Mais ações para ${subject}`}
+          className="min-h-11 min-w-11"
           disabled={isDisabled}
-          icon={<Pencil className="h-4 w-4" aria-hidden="true" />}
-          onClick={() => onEdit(appointment)}
+          icon={<MoreHorizontal className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => setIsMenuOpen((current) => !current)}
           size="icon"
-          title="Editar atendimento"
+          title="Mais ações"
           variant="ghost"
         />
-        <Button
-          aria-label={`Remover atendimento de ${subject}`}
-          disabled={isDisabled}
-          icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
-          size="icon"
-          title="Remover atendimento"
-          variant="danger"
-          onClick={() => onRemove(appointment)}
-        />
+
+        {isMenuOpen ? (
+          <div
+            className="absolute right-0 top-full z-20 mt-2 w-56 rounded-lg border border-stone-200 bg-white p-1 shadow-lg"
+            aria-label={`Ações para ${subject}`}
+            role="menu"
+          >
+            <CalendarCalendarButton
+              appointment={appointment}
+              className="min-h-11 w-full justify-start rounded-md"
+              isDisabled={isDisabled}
+              isExporting={isCalendarExporting}
+              onClick={(selectedAppointment) => {
+                setIsMenuOpen(false)
+                onCalendarClick(selectedAppointment)
+              }}
+              role="menuitem"
+            />
+            <Button
+              className="min-h-11 w-full justify-start rounded-md"
+              icon={<Trash2 className="h-4 w-4" aria-hidden="true" />}
+              onClick={() => {
+                setIsMenuOpen(false)
+                onRemove(appointment)
+              }}
+              role="menuitem"
+              variant="danger"
+            >
+              Remover
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   )
@@ -234,12 +344,28 @@ export function AppointmentsPage({
   const queryClient = useQueryClient()
   const previousCreateRequestRef = useRef(createRequest)
   const shouldOpenOnMountRef = useRef(openOnMount)
-  const [dateFilter, setDateFilter] = useState('')
+  const initialMonthSelection = getCurrentMonthSelection()
+  const initialMonthRange = getAppointmentMonthRange(
+    initialMonthSelection.year,
+    initialMonthSelection.month,
+  )
+  const [monthSelection, setMonthSelection] =
+    useState<MonthSelection>(initialMonthSelection)
+  const [periodMode, setPeriodMode] =
+    useState<AppointmentPeriodMode>('month')
+  const [customDateFrom, setCustomDateFrom] = useState(
+    initialMonthRange.dateFrom,
+  )
+  const [customDateTo, setCustomDateTo] = useState(initialMonthRange.dateTo)
+  const [searchFilter, setSearchFilter] = useState('')
   const [patientFilter, setPatientFilter] = useState('all')
   const [professionalFilter, setProfessionalFilter] = useState('all')
   const [serviceFilter, setServiceFilter] = useState('all')
   const [statusFilter, setStatusFilter] =
     useState<AppointmentStatusFilter>('all')
+  const [isMoreFiltersOpen, setIsMoreFiltersOpen] = useState(false)
+  const [previousValidDateRange, setPreviousValidDateRange] =
+    useState<AppointmentDateRange>(initialMonthRange)
   const [formMode, setFormMode] = useState<AppointmentFormMode | null>(null)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [calendarFeedbackMessage, setCalendarFeedbackMessage] = useState<
@@ -250,9 +376,34 @@ export function AppointmentsPage({
   >(null)
   const [isCalendarExporting, setIsCalendarExporting] = useState(false)
   const [mutationError, setMutationError] = useState<string | undefined>()
+  const [appointmentToRemove, setAppointmentToRemove] =
+    useState<AppointmentDTO | null>(null)
+  const [removeErrorMessage, setRemoveErrorMessage] = useState<string | null>(
+    null,
+  )
+
+  const selectedMonthRange = getAppointmentMonthRange(
+    monthSelection.year,
+    monthSelection.month,
+  )
+  const customDateRange = {
+    dateFrom: customDateFrom,
+    dateTo: customDateTo,
+  }
+  const periodError =
+    periodMode === 'custom'
+      ? getDateRangeError(customDateFrom, customDateTo)
+      : null
+  const selectedDateRange =
+    periodMode === 'custom'
+      ? periodError
+        ? previousValidDateRange
+        : customDateRange
+      : selectedMonthRange
 
   const appointmentFilters = {
-    date: dateFilter || undefined,
+    dateFrom: selectedDateRange.dateFrom,
+    dateTo: selectedDateRange.dateTo,
     patientId: patientFilter === 'all' ? undefined : patientFilter,
     professionalId:
       professionalFilter === 'all' ? undefined : professionalFilter,
@@ -264,6 +415,7 @@ export function AppointmentsPage({
     data: appointments = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['appointments', appointmentFilters],
     queryFn: () => appointmentRepository.list(appointmentFilters),
@@ -295,6 +447,17 @@ export function AppointmentsPage({
     queryKey: ['services', { active: true }],
     queryFn: () => serviceRepository.list({ active: true }),
   })
+
+  const normalizedSearchFilter = searchFilter.trim().toLocaleLowerCase()
+  const visibleAppointments = normalizedSearchFilter
+    ? appointments.filter((appointment) =>
+        [appointment.patientName, appointment.serviceName]
+          .filter(Boolean)
+          .some((value) =>
+            value?.toLocaleLowerCase().includes(normalizedSearchFilter),
+          ),
+      )
+    : appointments
 
   const createMutation = useMutation({
     mutationFn: (input: AppointmentFormData) =>
@@ -329,12 +492,14 @@ export function AppointmentsPage({
     onError: () => {
       setFeedbackMessage(null)
       setCalendarFeedbackMessage(null)
-      setCalendarErrorMessage('Nao foi possivel remover. Tente novamente.')
+      setRemoveErrorMessage('Nao foi possivel remover. Tente novamente.')
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['appointments'] })
       setFeedbackMessage('Atendimento removido com sucesso.')
       setCalendarErrorMessage(null)
+      setRemoveErrorMessage(null)
+      setAppointmentToRemove(null)
     },
   })
 
@@ -368,33 +533,131 @@ export function AppointmentsPage({
     setMutationError(undefined)
   }
 
+  function handleMonthSelectionChange(value: string) {
+    const [yearText, monthText] = value.split('-')
+    const year = Number(yearText)
+    const month = Number(monthText)
+
+    if (!Number.isInteger(year) || !Number.isInteger(month)) {
+      return
+    }
+
+    const nextMonthSelection = { month, year }
+    const nextDateRange = getAppointmentMonthRange(year, month)
+
+    setMonthSelection(nextMonthSelection)
+    setPeriodMode('month')
+    setCustomDateFrom(nextDateRange.dateFrom)
+    setCustomDateTo(nextDateRange.dateTo)
+    setPreviousValidDateRange(nextDateRange)
+  }
+
+  function handleMoveMonth(offset: number) {
+    const nextMonth = new Date(
+      Date.UTC(monthSelection.year, monthSelection.month - 1 + offset, 1),
+    )
+
+    handleMonthSelectionChange(
+      formatMonthInputValue({
+        month: nextMonth.getUTCMonth() + 1,
+        year: nextMonth.getUTCFullYear(),
+      }),
+    )
+  }
+
+  function handleToggleCustomPeriod() {
+    if (periodMode === 'custom') {
+      setPeriodMode('month')
+      return
+    }
+
+    const range = previousValidDateRange
+    setCustomDateFrom(range.dateFrom)
+    setCustomDateTo(range.dateTo)
+    setPeriodMode('custom')
+  }
+
+  function handleCustomDateChange(
+    field: 'dateFrom' | 'dateTo',
+    value: string,
+  ) {
+    const nextDateRange = {
+      dateFrom: field === 'dateFrom' ? value : customDateFrom,
+      dateTo: field === 'dateTo' ? value : customDateTo,
+    }
+
+    if (field === 'dateFrom') {
+      setCustomDateFrom(value)
+    } else {
+      setCustomDateTo(value)
+    }
+
+    if (isValidAppointmentDateRange(nextDateRange)) {
+      setPreviousValidDateRange(nextDateRange)
+    }
+  }
+
+  function handleResetPeriod() {
+    const currentMonth = getCurrentMonthSelection()
+    const currentMonthRange = getAppointmentMonthRange(
+      currentMonth.year,
+      currentMonth.month,
+    )
+
+    setMonthSelection(currentMonth)
+    setCustomDateFrom(currentMonthRange.dateFrom)
+    setCustomDateTo(currentMonthRange.dateTo)
+    setPeriodMode('month')
+    setPreviousValidDateRange(currentMonthRange)
+  }
+
   function handleClearFilters() {
-    setDateFilter('')
+    handleResetPeriod()
+    setSearchFilter('')
     setPatientFilter('all')
     setProfessionalFilter('all')
     setServiceFilter('all')
     setStatusFilter('all')
+    setIsMoreFiltersOpen(false)
   }
 
   async function handleSubmitAppointment(input: AppointmentFormData) {
     if (formMode?.type === 'edit') {
+      if (updateMutation.isPending) {
+        return
+      }
+
       await updateMutation.mutateAsync({ id: formMode.appointment.id, input })
+      return
+    }
+
+    if (createMutation.isPending) {
       return
     }
 
     await createMutation.mutateAsync(input)
   }
 
-  async function handleRemoveAppointment(appointment: AppointmentDTO) {
-    const shouldRemove = window.confirm(
-      `Remover o atendimento de ${getAppointmentSubject(appointment)}?`,
-    )
+  function handleRemoveAppointment(appointment: AppointmentDTO) {
+    setRemoveErrorMessage(null)
+    setAppointmentToRemove(appointment)
+  }
 
-    if (!shouldRemove) {
+  async function handleConfirmRemove() {
+    if (!appointmentToRemove) {
       return
     }
 
-    await removeMutation.mutateAsync(appointment.id)
+    await removeMutation.mutateAsync(appointmentToRemove.id)
+  }
+
+  function handleCloseRemoveConfirmation() {
+    if (removeMutation.isPending) {
+      return
+    }
+
+    setRemoveErrorMessage(null)
+    setAppointmentToRemove(null)
   }
 
   async function handleCalendarClick(appointment: AppointmentDTO) {
@@ -403,8 +666,16 @@ export function AppointmentsPage({
     setIsCalendarExporting(true)
 
     try {
-      const publicUrl = await uploadAppointmentCalendarFile(appointment)
-      window.location.assign(publicUrl)
+      await Promise.resolve()
+      const calendarFile = createAppointmentCalendarIcs(appointment)
+      downloadFile({
+        content: calendarFile.content,
+        filename: calendarFile.filename,
+        mimeType: 'text/calendar;charset=utf-8',
+      })
+      setCalendarFeedbackMessage(
+        `Arquivo ${calendarFile.filename} baixado. Abra-o para adicionar ao calendario.`,
+      )
     } catch {
       setCalendarErrorMessage(
         'Nao foi possivel gerar o calendario. Tente novamente.',
@@ -426,6 +697,75 @@ export function AppointmentsPage({
     removeMutation.isPending
   const hasCalendarFeedback =
     calendarFeedbackMessage !== null || calendarErrorMessage !== null
+  const currentMonthSelection = getCurrentMonthSelection()
+  const isCurrentMonth =
+    monthSelection.month === currentMonthSelection.month &&
+    monthSelection.year === currentMonthSelection.year
+  const activeFilterChips = [
+    {
+      key: 'period',
+      label:
+        periodMode === 'custom'
+          ? periodError
+            ? 'Período inválido'
+            : formatDateRangeLabel(customDateRange)
+          : formatMonthLabel(monthSelection),
+      onRemove: handleResetPeriod,
+    },
+    ...(searchFilter.trim()
+      ? [
+          {
+            key: 'search',
+            label: `Busca: ${searchFilter.trim()}`,
+            onRemove: () => setSearchFilter(''),
+          },
+        ]
+      : []),
+    ...(statusFilter !== 'all'
+      ? [
+          {
+            key: 'status',
+            label: statusLabels[statusFilter],
+            onRemove: () => setStatusFilter('all'),
+          },
+        ]
+      : []),
+    ...(patientFilter !== 'all'
+      ? [
+          {
+            key: 'patient',
+            label: `Paciente: ${patientOptions.find((option) => option.id === patientFilter)?.name ?? 'selecionado'}`,
+            onRemove: () => setPatientFilter('all'),
+          },
+        ]
+      : []),
+    ...(professionalFilter !== 'all'
+      ? [
+          {
+            key: 'professional',
+            label: `Profissional: ${professionalOptions.find((option) => option.id === professionalFilter)?.name ?? 'selecionado'}`,
+            onRemove: () => setProfessionalFilter('all'),
+          },
+        ]
+      : []),
+    ...(serviceFilter !== 'all'
+      ? [
+          {
+            key: 'service',
+            label: `Serviço: ${serviceOptions.find((option) => option.id === serviceFilter)?.name ?? 'selecionado'}`,
+            onRemove: () => setServiceFilter('all'),
+          },
+        ]
+      : []),
+  ]
+  const hasAdditionalFilters =
+    !isCurrentMonth ||
+    periodMode === 'custom' ||
+    Boolean(searchFilter.trim()) ||
+    patientFilter !== 'all' ||
+    professionalFilter !== 'all' ||
+    serviceFilter !== 'all' ||
+    statusFilter !== 'all'
 
   return (
     <div className="space-y-4">
@@ -436,7 +776,7 @@ export function AppointmentsPage({
               ? 'border-red-200 bg-red-50 p-4'
               : 'border-emerald-200 bg-emerald-50 p-4'
           }
-          role="status"
+          role={calendarErrorMessage ? 'alert' : 'status'}
           aria-live="polite"
         >
           <p
@@ -459,77 +799,252 @@ export function AppointmentsPage({
         </Card>
       ) : null}
 
-      <section className="grid gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-[minmax(0,150px)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,170px)_auto]">
-        <Input
-          label="Data"
-          onChange={(event) => setDateFilter(event.target.value)}
-          type="date"
-          value={dateFilter}
-        />
-        <Select
-          label="Paciente"
-          onChange={(event) => setPatientFilter(event.target.value)}
-          options={toFilterOptions('Todos os pacientes', patientOptions)}
-          value={patientFilter}
-        />
-        <Select
-          label="Profissional"
-          onChange={(event) => setProfessionalFilter(event.target.value)}
-          options={toFilterOptions(
-            'Todos os profissionais',
-            professionalOptions,
-          )}
-          value={professionalFilter}
-        />
-        <Select
-          label="Servico"
-          onChange={(event) => setServiceFilter(event.target.value)}
-          options={toFilterOptions('Todos os servicos', serviceOptions)}
-          value={serviceFilter}
-        />
-        <Select
-          label="Status"
-          onChange={(event) =>
-            setStatusFilter(event.target.value as AppointmentStatusFilter)
-          }
-          options={[
-            { label: 'Todos os status', value: 'all' },
-            ...Object.entries(statusLabels).map(([value, label]) => ({
-              label,
-              value,
-            })),
-          ]}
-          value={statusFilter}
-        />
-        <div className="flex items-end">
+      <section
+        className="space-y-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm"
+        aria-label="Filtros da agenda"
+      >
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Período
+            </p>
+            <div className="mt-2 flex items-end gap-2">
+              <Button
+                aria-label="Mês anterior"
+                className="min-h-11 min-w-11"
+                icon={<ChevronLeft className="h-4 w-4" aria-hidden="true" />}
+                onClick={() => handleMoveMonth(-1)}
+                size="icon"
+                variant="secondary"
+              />
+              <Input
+                aria-label="Mês selecionado"
+                className="min-h-11 min-w-0 text-base sm:text-sm"
+                id="appointment-month"
+                label="Mês"
+                onChange={(event) =>
+                  handleMonthSelectionChange(event.target.value)
+                }
+                type="month"
+                value={formatMonthInputValue(monthSelection)}
+              />
+              <Button
+                aria-label="Próximo mês"
+                className="min-h-11 min-w-11"
+                icon={<ChevronRight className="h-4 w-4" aria-hidden="true" />}
+                onClick={() => handleMoveMonth(1)}
+                size="icon"
+                variant="secondary"
+              />
+            </div>
+          </div>
           <Button
-            className="w-full xl:w-auto"
-            icon={<RotateCcw className="h-4 w-4" aria-hidden="true" />}
-            onClick={handleClearFilters}
+            aria-expanded={periodMode === 'custom'}
+            aria-controls="appointment-custom-period"
+            className="min-h-11 w-full sm:w-auto"
+            onClick={handleToggleCustomPeriod}
             type="button"
             variant="secondary"
           >
-            Limpar
+            {periodMode === 'custom'
+              ? 'Usar mês selecionado'
+              : 'Escolher período personalizado'}
           </Button>
         </div>
+
+        {periodMode === 'custom' ? (
+          <div
+            className="grid gap-3 border-t border-stone-100 pt-4 sm:grid-cols-2"
+            id="appointment-custom-period"
+          >
+            <Input
+              className="min-h-11 text-base sm:text-sm"
+              error={periodError ?? undefined}
+              id="appointment-date-from"
+              label="De"
+              onChange={(event) =>
+                handleCustomDateChange('dateFrom', event.target.value)
+              }
+              type="date"
+              value={customDateFrom}
+            />
+            <Input
+              className="min-h-11 text-base sm:text-sm"
+              error={periodError ?? undefined}
+              id="appointment-date-to"
+              label="Até"
+              onChange={(event) =>
+                handleCustomDateChange('dateTo', event.target.value)
+              }
+              type="date"
+              value={customDateTo}
+            />
+          </div>
+        ) : null}
+
+        {periodError ? (
+          <p className="text-sm text-red-700" role="alert">
+            {periodError}
+          </p>
+        ) : null}
+
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,220px)]">
+          <Input
+            aria-label="Buscar paciente ou serviço"
+            className="min-h-11 text-base sm:text-sm"
+            id="appointment-search"
+            label="Buscar paciente ou serviço"
+            onChange={(event) => setSearchFilter(event.target.value)}
+            placeholder="Nome do paciente ou serviço"
+            type="search"
+            value={searchFilter}
+          />
+          <Select
+            className="min-h-11"
+            id="appointment-status"
+            label="Status"
+            onChange={(event) =>
+              setStatusFilter(event.target.value as AppointmentStatusFilter)
+            }
+            options={[
+              { label: 'Todos os status', value: 'all' },
+              ...Object.entries(statusLabels).map(([value, label]) => ({
+                label,
+                value,
+              })),
+            ]}
+            value={statusFilter}
+          />
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-stone-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <Button
+            aria-controls="appointment-more-filters"
+            aria-expanded={isMoreFiltersOpen}
+            className="min-h-11 w-full sm:w-auto"
+            onClick={() => setIsMoreFiltersOpen((current) => !current)}
+            type="button"
+            variant="secondary"
+          >
+            {isMoreFiltersOpen ? 'Ocultar filtros' : 'Mais filtros'}
+          </Button>
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+            <p
+              className="text-sm font-medium text-zinc-600"
+              aria-live="polite"
+            >
+              {visibleAppointments.length}{' '}
+              {visibleAppointments.length === 1
+                ? 'atendimento encontrado'
+                : 'atendimentos encontrados'}
+            </p>
+            <Button
+              aria-label="Limpar filtros da agenda"
+              className="min-h-11 shrink-0"
+              icon={<RotateCcw className="h-4 w-4" aria-hidden="true" />}
+              onClick={handleClearFilters}
+              type="button"
+              variant="ghost"
+            >
+              Limpar
+            </Button>
+          </div>
+        </div>
+
+        {isMoreFiltersOpen ? (
+          <div
+            className="grid gap-3 border-t border-stone-100 pt-4 md:grid-cols-3"
+            id="appointment-more-filters"
+          >
+            <Select
+              className="min-h-11"
+              id="appointment-patient"
+              label="Paciente"
+              onChange={(event) => setPatientFilter(event.target.value)}
+              options={toFilterOptions('Todos os pacientes', patientOptions)}
+              value={patientFilter}
+            />
+            <Select
+              className="min-h-11"
+              id="appointment-professional"
+              label="Profissional"
+              onChange={(event) => setProfessionalFilter(event.target.value)}
+              options={toFilterOptions(
+                'Todos os profissionais',
+                professionalOptions,
+              )}
+              value={professionalFilter}
+            />
+            <Select
+              className="min-h-11"
+              id="appointment-service"
+              label="Serviço"
+              onChange={(event) => setServiceFilter(event.target.value)}
+              options={toFilterOptions('Todos os serviços', serviceOptions)}
+              value={serviceFilter}
+            />
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap gap-2" aria-label="Filtros ativos">
+          {activeFilterChips.map((chip) => (
+            <ActiveFilterChip
+              key={chip.key}
+              label={chip.label}
+              onRemove={chip.onRemove}
+            />
+          ))}
+        </div>
+
+        {hasAdditionalFilters ? (
+          <p className="text-xs text-zinc-500">
+            Os resultados são atualizados automaticamente ao alterar um filtro.
+          </p>
+        ) : null}
       </section>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar os atendimentos." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar os atendimentos."
+        />
       ) : null}
 
       {isLoading ? (
         <LoadingState label="Carregando atendimentos..." variant="table" />
       ) : null}
 
-      {!isLoading && !error && appointments.length === 0 ? (
+      {!isLoading && !error && visibleAppointments.length === 0 ? (
         <EmptyState
-          description="Crie um novo atendimento para iniciar a agenda."
-          title="Nenhum atendimento encontrado."
+          action={
+            hasAdditionalFilters ? (
+              <Button
+                className="min-h-11"
+                onClick={handleClearFilters}
+                variant="secondary"
+              >
+                Limpar filtros
+              </Button>
+            ) : undefined
+          }
+          description={
+            hasAdditionalFilters
+              ? 'Ajuste ou limpe os filtros para ver outros atendimentos.'
+              : 'Crie um novo atendimento para iniciar a agenda.'
+          }
+          title={
+            hasAdditionalFilters
+              ? 'Nenhum atendimento encontrado.'
+              : 'Nenhum atendimento cadastrado neste período.'
+          }
         />
       ) : null}
 
-      {!isLoading && !error && appointments.length > 0 ? (
+      {!isLoading && !error && visibleAppointments.length > 0 ? (
         <>
           <div className="hidden xl:block">
             <Table>
@@ -548,7 +1063,7 @@ export function AppointmentsPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {appointments.map((appointment) => (
+                {visibleAppointments.map((appointment) => (
                   <TableRow key={appointment.id}>
                     <TableCell>{formatDate(appointment.appointmentDate)}</TableCell>
                     <TableCell>{formatTime(appointment.appointmentTime)}</TableCell>
@@ -586,7 +1101,7 @@ export function AppointmentsPage({
           </div>
 
           <div className="grid gap-3 xl:hidden">
-            {appointments.map((appointment) => (
+            {visibleAppointments.map((appointment) => (
               <Card className="p-4" key={appointment.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -707,6 +1222,51 @@ export function AppointmentsPage({
             }
           />
         ) : null}
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(appointmentToRemove)}
+        onClose={handleCloseRemoveConfirmation}
+        title="Remover atendimento"
+      >
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-zinc-700">
+            Remover o atendimento de{' '}
+            <strong className="font-semibold text-zinc-950">
+              {appointmentToRemove
+                ? getAppointmentSubject(appointmentToRemove)
+                : ''}
+            </strong>{' '}
+            em{' '}
+            {appointmentToRemove
+              ? `${formatDate(appointmentToRemove.appointmentDate)} às ${formatTime(appointmentToRemove.appointmentTime)}`
+              : ''}
+            ? Esta ação não pode ser desfeita.
+          </p>
+
+          {removeErrorMessage ? (
+            <p className="text-sm text-red-700" role="alert">
+              {removeErrorMessage}
+            </p>
+          ) : null}
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button
+              disabled={removeMutation.isPending}
+              onClick={handleCloseRemoveConfirmation}
+              variant="secondary"
+            >
+              Cancelar
+            </Button>
+            <Button
+              disabled={removeMutation.isPending}
+              onClick={() => void handleConfirmRemove()}
+              variant="danger"
+            >
+              {removeMutation.isPending ? 'Removendo...' : 'Remover atendimento'}
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   )
