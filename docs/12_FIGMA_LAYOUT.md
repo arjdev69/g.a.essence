@@ -400,3 +400,153 @@ Mensagens:
 - Criar equivalentes mobile das telas críticas: dashboard, atendimentos e formulário.
 - Conectar protótipo do fluxo principal.
 - Revisar contraste, labels e foco visível.
+
+## 11. Blueprint Mobile-first V2 aprovado
+
+Esta seção substitui, para implementação mobile, qualquer orientação anterior que permita navegação inferior fixa. A sidebar desktop permanece válida.
+
+### 11.1 Frame e safe areas
+
+- Frame de referência: `390 × 844`.
+- Validar também em `320px` e `430px` de largura.
+- Conteúdo: padding lateral de `16px`.
+- Cabeçalho: altura visual mínima de `64px`, acrescida de `env(safe-area-inset-top)` na implementação.
+- Rodapé: não possui navegação fixa; conteúdo rola livremente até o fim.
+- Inputs editáveis: texto mínimo de `16px` no mobile.
+- Alvos essenciais: mínimo de `44 × 44px`.
+
+### 11.2 Navegação mobile
+
+Cabeçalho:
+
+```txt
+[ Menu 44×44 ]  G.A Essência / Título da tela  [ Ação contextual 44×44 ]
+```
+
+Drawer:
+
+- ocupa aproximadamente `82%` da largura;
+- superfície opaca sobre backdrop semitransparente;
+- botão Fechar no topo;
+- marca e subtítulo;
+- Visão geral, Atendimentos, Pacientes, Profissionais, Serviços e Relatórios;
+- item ativo com fundo teal suave e texto teal;
+- sem atalhos duplicados no rodapé.
+
+### 11.3 Atendimentos mobile
+
+Ordem vertical:
+
+1. título e descrição curta;
+2. seletor de mês entre ações anterior/próximo;
+3. link para período personalizado;
+4. busca;
+5. status;
+6. `Mais filtros` expansível com paciente, profissional e serviço;
+7. contagem e Limpar filtros;
+8. chips ativos;
+9. cards de atendimento;
+10. Novo atendimento.
+
+Card:
+
+```txt
+Paciente                              [ Status ]
+Data e hora · Serviço
+────────────────────────────────────────────
+Valor                                Divisão
+R$ 110,00                       R$ 33 / R$ 77
+
+[ Editar ]                       [ Mais ações ]
+```
+
+Menu Mais ações:
+
+- Adicionar ao calendário;
+- Remover atendimento, em vermelho;
+- confirmação contextual antes da remoção.
+
+### 11.4 Relatórios mobile
+
+Filtros visíveis:
+
+- mês/ano;
+- status;
+- profissional;
+- serviço;
+- limpar.
+
+Resumo em grade `2 × 2`:
+
+- Total no período;
+- Financeiros;
+- Faturamento;
+- Cancelados · faltas.
+
+Abaixo da grade:
+
+- linha compacta Clínica / Profissional;
+- detalhamento em cards;
+- Exportar relatório em largura total.
+
+Quando o status não for financeiro, Faturamento, Clínica e Profissional exibem `R$ 0,00`, enquanto a contagem e as linhas continuam visíveis.
+
+### 11.5 Formulário mobile
+
+Ordem:
+
+1. paciente;
+2. serviço;
+3. profissional somente quando houver escolha;
+4. data + hora em duas colunas quando couber;
+5. status;
+6. valor + percentual;
+7. observação;
+8. painel de repasse;
+9. Salvar atendimento.
+
+O painel de repasse usa fundo teal suave e mostra Total, Clínica e Profissional sem esconder campos ou criar elemento fixo sobre o conteúdo.
+
+### 11.6 Outras telas mobile
+
+- **Login**: marca, frase, e-mail, senha e Entrar; sem navegação interna.
+- **Visão geral**: quatro métricas em `2 × 2`, agenda de hoje, Novo atendimento e resumo financeiro.
+- **Pacientes**: busca, Novo paciente e cards com iniciais, nome, telefone e quantidade de atendimentos.
+- **Profissionais**: busca, Novo profissional e cards com especialidade, percentual e status.
+- **Serviços**: busca, Novo serviço e cards com duração, valor, percentual e badge Brinde.
+
+### 11.7 Componentes e variantes adicionais
+
+- `MobileHeader`: default, com ação, drawer aberto.
+- `NavigationDrawer`: fechado, aberto; item default/ativo.
+- `MonthNavigator`: default, primeiro/último mês disponível, desabilitado.
+- `ActiveFilterChip`: default, removível, foco.
+- `ExpandableFilters`: fechado, aberto.
+- `AppointmentCard`: scheduled, completed, paid, cancelled, no_show; menu aberto.
+- `ReportMetric`: padrão, zero, carregando.
+- `FeedbackState`: vazio inicial, filtro vazio, erro recuperável, sucesso.
+- `ConfirmationDialog`: remoção normal, enviando, erro.
+
+### 11.8 Protótipo de validação
+
+Conectar:
+
+```txt
+Visão geral → Menu → Atendimentos → Agosto/2026 → Status Pago → Editar
+Visão geral → Novo atendimento → Salvar → confirmação → Atendimentos
+Atendimentos → Mais ações → Remover → cancelar confirmação
+Relatórios → Status Cancelado → conferir R$ 0 → Exportar
+```
+
+### 11.9 Checklist visual V2
+
+- nenhum menu inferior fixo em frame mobile;
+- nenhuma rolagem horizontal em `320px`;
+- todos os alvos essenciais com `44px`;
+- inputs com texto de `16px`;
+- status combina cor, texto e contraste;
+- filtro ativo sempre identificável;
+- vazio inicial e filtro sem resultado visualmente distintos;
+- foco visível em drawer, chips, ações e formulário;
+- tela de relatório diferencia quantidade total de quantidade financeira;
+- conteúdo de nomes longos não sobrepõe status ou ações.
