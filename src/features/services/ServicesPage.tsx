@@ -110,6 +110,7 @@ export function ServicesPage({ createRequest }: ServicesPageProps) {
     data: services = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['services', { active, search }],
     queryFn: () =>
@@ -242,7 +243,14 @@ export function ServicesPage({ createRequest }: ServicesPageProps) {
       </section>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar os servicos." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar os servicos."
+        />
       ) : null}
 
       {isLoading ? (

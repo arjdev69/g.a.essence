@@ -8,6 +8,7 @@ import {
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import { Badge } from '../../components/ui/Badge'
+import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
@@ -249,6 +250,7 @@ export function DashboardPage() {
     data: appointments = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['appointments', 'dashboard-summary'],
     queryFn: () => appointmentRepository.list(),
@@ -277,7 +279,14 @@ export function DashboardPage() {
       </div>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar o dashboard." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar o dashboard."
+        />
       ) : null}
 
       {isLoading ? (

@@ -55,6 +55,7 @@ export function Modal({
           <h2 className="min-w-0 truncate text-lg font-semibold text-zinc-950">{title}</h2>
           <Button
             aria-label="Fechar"
+            className="min-h-11 min-w-11"
             icon={<X className="h-4 w-4" aria-hidden="true" />}
             onClick={onClose}
             size="icon"

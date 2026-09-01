@@ -112,6 +112,7 @@ export function ProfessionalsPage({ createRequest }: ProfessionalsPageProps) {
     data: professionals = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['professionals', { active, search }],
     queryFn: () =>
@@ -245,7 +246,14 @@ export function ProfessionalsPage({ createRequest }: ProfessionalsPageProps) {
       </section>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar os profissionais." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar os profissionais."
+        />
       ) : null}
 
       {isLoading ? (

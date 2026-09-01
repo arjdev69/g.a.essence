@@ -57,7 +57,7 @@ export function AppointmentNotificationsButton() {
     <Button
       aria-label={label}
       aria-pressed={isActive}
-      className="h-10 w-10 rounded-md px-0 sm:w-auto sm:px-3"
+      className="min-h-11 min-w-11 rounded-md px-0 sm:w-auto sm:px-3"
       disabled={isRequesting}
       icon={<Icon className="h-4 w-4" aria-hidden="true" />}
       onClick={handleClick}

@@ -77,7 +77,7 @@ export function InstallPwaButton() {
   return (
     <Button
       aria-label="Instalar app"
-      className="rounded-md px-3"
+      className="min-h-11 rounded-md px-3"
       icon={<Download className="h-4 w-4" aria-hidden="true" />}
       onClick={handleInstallClick}
       title="Instalar app"

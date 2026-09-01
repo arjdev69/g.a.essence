@@ -112,6 +112,7 @@ export function PatientsPage({ createRequest }: PatientsPageProps) {
     data: patients = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: ['patients', { active, search }],
     queryFn: () =>
@@ -244,7 +245,14 @@ export function PatientsPage({ createRequest }: PatientsPageProps) {
       </section>
 
       {error ? (
-        <ErrorState title="Nao foi possivel carregar os pacientes." />
+        <ErrorState
+          action={
+            <Button className="min-h-11" onClick={() => void refetch()} variant="secondary">
+              Tentar novamente
+            </Button>
+          }
+          title="Nao foi possivel carregar os pacientes."
+        />
       ) : null}
 
       {isLoading ? (

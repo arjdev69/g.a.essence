@@ -481,7 +481,7 @@ export function ReportsPage({
       {hasReportError ? (
         <ErrorState
           action={
-            <Button onClick={retryReport} variant="secondary">
+            <Button className="min-h-11" onClick={retryReport} variant="secondary">
               Tentar novamente
             </Button>
           }
@@ -695,7 +695,7 @@ export function ReportsPage({
         summary.rows.length === 0 ? (
           <EmptyState
             action={
-              <Button onClick={resetFilters} variant="secondary">
+              <Button className="min-h-11" onClick={resetFilters} variant="secondary">
                 Limpar filtros
               </Button>
             }
