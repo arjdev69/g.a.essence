@@ -318,8 +318,27 @@ describe('telas complementares no mobile', () => {
     )
 
     const selects = Array.from(container.querySelectorAll('select'))
-    expect(selects).toHaveLength(4)
+    expect(selects).toHaveLength(5)
     selects.forEach((select) => expectTouchTarget(select))
+    expect(
+      container.querySelector('select[name="paymentPendingFilter"]'),
+    ).not.toBeNull()
+    expect(container.textContent).toContain('Pagamento pendente (fiado)')
+
+    const paymentPendingFilter = container.querySelector<HTMLSelectElement>(
+      'select[name="paymentPendingFilter"]',
+    )
+
+    expect(paymentPendingFilter).not.toBeNull()
+    await act(async () => {
+      paymentPendingFilter!.value = 'yes'
+      paymentPendingFilter!.dispatchEvent(new Event('change', { bubbles: true }))
+      await Promise.resolve()
+    })
+
+    expect(productRepository.list).toHaveBeenLastCalledWith(
+      expect.objectContaining({ paymentPending: true }),
+    )
 
     const actions = container.querySelectorAll(
       'button[aria-label^="Editar"], button[aria-label^="Ver historico"], button[aria-label^="Registrar"], button[aria-label^="Inativar"]',

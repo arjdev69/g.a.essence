@@ -148,6 +148,7 @@ export type ProductFilters = {
   status?: ProductStatus | 'all'
   lowStock?: boolean
   pendingData?: boolean
+  paymentPending?: boolean
 }
 
 export type StockMovementFilters = {
@@ -198,6 +199,9 @@ Regras de resumo:
 
 - `pendingData` equivale a `salePriceOpen = true`, `salePrice = null` ou
   `averageCost = null`.
+- `paymentPending` equivale a existir ao menos uma movimentacao `sale` do
+  produto com `receipt_status = 'pending'` ou `receipt_status = 'partial'`.
+  Isso representa venda fiada ou com saldo em aberto.
 - `inventoryValue` deve somar apenas produtos com `averageCost` definido.
 - filtros de periodo devem usar `occurredAt`.
 
