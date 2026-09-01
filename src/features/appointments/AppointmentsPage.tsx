@@ -612,7 +612,15 @@ export function AppointmentsPage({
 
   async function handleSubmitAppointment(input: AppointmentFormData) {
     if (formMode?.type === 'edit') {
+      if (updateMutation.isPending) {
+        return
+      }
+
       await updateMutation.mutateAsync({ id: formMode.appointment.id, input })
+      return
+    }
+
+    if (createMutation.isPending) {
       return
     }
 
