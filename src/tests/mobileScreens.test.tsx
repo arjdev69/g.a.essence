@@ -335,6 +335,7 @@ describe('telas complementares no mobile', () => {
       paymentPendingFilter!.dispatchEvent(new Event('change', { bubbles: true }))
       await Promise.resolve()
     })
+    await settleQueries()
 
     expect(productRepository.list).toHaveBeenLastCalledWith(
       expect.objectContaining({ paymentPending: true }),
