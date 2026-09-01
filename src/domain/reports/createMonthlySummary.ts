@@ -42,6 +42,10 @@ export function createMonthlySummary(
       return false
     }
 
+    if (input.status && appointment.status !== input.status) {
+      return false
+    }
+
     return true
   })
 
@@ -88,11 +92,13 @@ export function createMonthlySummary(
     cancelledCount: rows.filter(
       (appointment) => appointment.status === 'cancelled',
     ).length,
+    financialCount: financialRows.length,
     giftCount: financialRows.filter((appointment) => appointment.value === 0)
       .length,
     noShowCount: rows.filter((appointment) => appointment.status === 'no_show')
       .length,
     rows,
+    totalCount: rows.length,
     totalClinicRevenue: roundCurrency(
       financialRows.reduce(
         (total, appointment) => total + appointment.clinicFeeValue,
