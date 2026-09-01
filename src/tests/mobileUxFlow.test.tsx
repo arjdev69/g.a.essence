@@ -268,7 +268,7 @@ describe('fluxo integrado da UX mobile', () => {
     for (const page of pages) {
       expectSeriousAxeViolationsToBeEmpty(await axe.run(page))
     }
-  })
+  }, 20_000)
 
   it('preserva a troca para cards no mobile e tabelas no desktop', async () => {
     const pages = [

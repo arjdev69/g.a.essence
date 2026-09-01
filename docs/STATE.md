@@ -28,21 +28,21 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 17 — Relatório coerente por status (concluído; ready-for-merge)
-- **Tasks concluídas neste bloco**: T-071, T-072, T-073
+- **Bloco atual**: 18 — Formulário, telas complementares e validação integrada (concluído; ready-for-merge)
+- **Tasks concluídas neste bloco**: T-074, T-075, T-076
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: congelar a ponta e integrar o Bloco 17 em `develop` com merge local `--no-ff`
-- **Validação**: POST-004 aprovado — `npm test` (11 arquivos, 63 testes), `npm run build` e `npm run lint` passaram; axe não apontou violações critical/serious; build mantém apenas o aviso conhecido de bundle acima de 500 kB e o teste axe no jsdom registra o aviso de canvas não implementado; inspeção visual local permanece limitada a `/login` sem credenciais
-- **Tentativas de baseline pré-task**: PRE-004 → cb25b9319f9702650ae96cb1a1f55646435cd4d4 → `npm test`; `npm run build`; `npm run lint` → aprovado: 10 arquivos/57 testes, build e lint sem erros
-- **Baseline inicial do bloco**: PRE-004 aprovado
+- **Próximo passo**: congelar a ponta e integrar o Bloco 18 em `develop` com merge local `--no-ff`
+- **Validação**: POST-005 aprovado — `npm test` (14 arquivos, 75 testes), `npm run build` e `npm run lint` passaram; axe não apontou violações critical/serious no escopo integrado; matriz cobre loading, vazio, erro recuperável e sucesso; build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes axe no jsdom registram o aviso de canvas não implementado; inspeção visual local permanece limitada a `/login` sem credenciais
+- **Tentativas de baseline pré-task**: PRE-005 → 53f71a0db683463d350c09123cc74d766d070030 → `npm test`; `npm run build`; `npm run lint` → aprovado: 11 arquivos/63 testes, build e lint sem erros
+- **Baseline inicial do bloco**: PRE-005 aprovado
 - **Rebaselines de comando**: nenhum
 - **Bloqueios**: nenhum
 - **Modo Gitflow**: feature
 - **Branch de produção**: main
 - **Branch de integração**: develop
-- **Branch de trabalho**: feature/bloco-17-relatorio-status
-- **Base da branch (SHA)**: cb25b9319f9702650ae96cb1a1f55646435cd4d4
-- **Último commit de task validado**: 80fb3dbc10675319e864a47486dafa219c9b67ca
+- **Branch de trabalho**: feature/bloco-18-formulario-telas
+- **Base da branch (SHA)**: 53f71a0db683463d350c09123cc74d766d070030
+- **Último commit de task validado**: 0b1fcce
 - **Estado da integração**: ready-for-merge
 - **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
 - **Arquivos dirty esperados**: nenhum
