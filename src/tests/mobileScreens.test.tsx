@@ -44,15 +44,51 @@ vi.mock('../repositories/service.repository', () => ({
   },
 }))
 
+vi.mock('../repositories/product.repository', () => ({
+  productRepository: {
+    create: vi.fn(),
+    deactivate: vi.fn(),
+    exportCsv: vi.fn(),
+    getById: vi.fn(),
+    getSummary: vi.fn(),
+    list: vi.fn(),
+    update: vi.fn(),
+  },
+}))
+
+vi.mock('../repositories/productSalesSummary.repository', () => ({
+  productSalesSummaryRepository: {
+    getByProduct: vi.fn(),
+  },
+}))
+
+vi.mock('../repositories/stockMovement.repository', () => ({
+  stockMovementRepository: {
+    create: vi.fn(),
+    listByProductId: vi.fn(),
+    listRecent: vi.fn(),
+  },
+}))
+
+vi.mock('../services/storage/productImageStorage', () => ({
+  deleteProductImageByUrl: vi.fn(),
+  uploadProductImage: vi.fn(),
+  validateProductImageFile: vi.fn(() => null),
+}))
+
 import { LoginPage } from '../features/auth/LoginPage'
 import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { PatientsPage } from '../features/patients/PatientsPage'
 import { ProfessionalsPage } from '../features/professionals/ProfessionalsPage'
+import { ProductsPage } from '../features/products/ProductsPage'
 import { ServicesPage } from '../features/services/ServicesPage'
 import { appointmentRepository } from '../repositories/appointment.repository'
 import { patientRepository } from '../repositories/patient.repository'
 import { professionalRepository } from '../repositories/professional.repository'
 import { serviceRepository } from '../repositories/service.repository'
+import { productRepository } from '../repositories/product.repository'
+import { productSalesSummaryRepository } from '../repositories/productSalesSummary.repository'
+import type { ProductDTO } from '../domain/products/product.types'
 
 const timestamp = '2026-01-01T00:00:00Z'
 
@@ -87,6 +123,25 @@ const service: ServiceDTO = {
   durationMinutes: 60,
   id: 'service-1',
   name: 'Massagem relaxante',
+  updatedAt: timestamp,
+}
+
+const product: ProductDTO = {
+  averageCost: 62,
+  category: 'Oleos',
+  currentStock: 1,
+  createdAt: timestamp,
+  id: 'product-1',
+  imageUrl: null,
+  internalCode: 'PROD-001',
+  minimumStock: 2,
+  name: 'Lavanda',
+  notes: null,
+  salePrice: 94.5,
+  salePriceOpen: false,
+  size: '5ml',
+  status: 'active',
+  unit: 'un',
   updatedAt: timestamp,
 }
 
@@ -180,6 +235,19 @@ beforeEach(() => {
   vi.mocked(patientRepository.list).mockResolvedValue([patient])
   vi.mocked(professionalRepository.list).mockResolvedValue([professional])
   vi.mocked(serviceRepository.list).mockResolvedValue([service])
+  vi.mocked(productRepository.list).mockResolvedValue([product])
+  vi.mocked(productRepository.getSummary).mockResolvedValue({
+    activeProductsCount: 1,
+    inventoryValue: 62,
+    lowStockCount: 1,
+    pendingDataCount: 0,
+    periodGrossProfit: 32.5,
+    periodReceived: 94.5,
+    periodRevenue: 94.5,
+    receivedByPaymentMethod: { card: 0, cash: 0, pix: 94.5 },
+    zeroStockCount: 0,
+  })
+  vi.mocked(productSalesSummaryRepository.getByProduct).mockResolvedValue([])
 })
 
 afterEach(() => {
@@ -231,5 +299,34 @@ describe('telas complementares no mobile', () => {
     await settleQueries()
 
     expectMobileDirectory(container)
+  })
+
+  it('mantém produtos em cards, filtros e ações tocáveis no mobile', async () => {
+    const container = renderQueryNode(<ProductsPage />)
+    await settleQueries()
+
+    const mobileCards = Array.from(container.querySelectorAll('div')).find(
+      (element) =>
+        element.classList.contains('lg:hidden') &&
+        element.querySelector('h3'),
+    )
+
+    expect(mobileCards).not.toBeUndefined()
+    expect(mobileCards?.querySelector('table')).toBeNull()
+    expect(container.querySelector('input[type="search"]')?.className).toContain(
+      'min-h-11',
+    )
+
+    const selects = Array.from(container.querySelectorAll('select'))
+    expect(selects).toHaveLength(4)
+    selects.forEach((select) => expectTouchTarget(select))
+
+    const actions = container.querySelectorAll(
+      'button[aria-label^="Editar"], button[aria-label^="Ver historico"], button[aria-label^="Registrar"], button[aria-label^="Inativar"]',
+    )
+
+    expect(actions.length).toBeGreaterThan(0)
+    actions.forEach((action) => expectTouchTarget(action))
+    expect(container.querySelector('table')).not.toBeNull()
   })
 })

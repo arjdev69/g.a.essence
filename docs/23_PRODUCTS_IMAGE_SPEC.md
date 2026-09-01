@@ -14,6 +14,10 @@ Ela existe para facilitar reconhecimento visual em listas, cards e detalhes.
 
 O sistema deve continuar funcionando normalmente sem imagem.
 
+Upload, troca e remocao de imagem ficam fora do MVP obrigatorio da secao de
+Produtos. Esta especificacao deve ser usada apenas se as tasks opcionais
+TASK-P039 a TASK-P041 forem priorizadas.
+
 ## 2. Objetivos
 
 - facilitar identificacao rapida do produto;
