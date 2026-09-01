@@ -226,8 +226,8 @@ Preparar demo.
 
 ## Bloco 15 — Navegação mobile sem sobreposição
 
-- [ ] T-066 — Substituir o menu inferior mobile por drawer mantendo a sidebar desktop · Arquivos: src/components/layout/AppLayout.tsx, src/components/layout/MainMenu.tsx · Atende: RF-020, CA-001, CA-002, CA-004, RNF-008 · Depende de: T-065 · verify: em 320px, 390px e 430px não há menu inferior nem conteúdo coberto; desktop mantém sidebar
-- [ ] T-067 — Implementar foco, teclado, backdrop, safe areas e testes do drawer · Arquivos: src/components/layout/AppLayout.tsx, src/components/layout/MainMenu.tsx, src/tests/navigation.test.tsx · Atende: RF-020, CA-003, RNF-008, RNF-009 · Depende de: T-066 · verify: testes fecham por rota, backdrop, Fechar e Escape e confirmam restauração de foco e aria-expanded
+- [x] T-066 — Substituir o menu inferior mobile por drawer mantendo a sidebar desktop · Arquivos: src/components/layout/AppLayout.tsx, src/components/layout/MainMenu.tsx · Atende: RF-020, CA-001, CA-002, CA-004, RNF-008 · Depende de: T-065 · verify: em 320px, 390px e 430px não há menu inferior nem conteúdo coberto; desktop mantém sidebar
+- [x] T-067 — Implementar foco, teclado, backdrop, safe areas e testes do drawer · Arquivos: src/components/layout/AppLayout.tsx, src/components/layout/MainMenu.tsx, src/tests/navigation.test.tsx, package.json, package-lock.json · Atende: RF-020, CA-003, RNF-008, RNF-009 · Depende de: T-066 · verify: testes fecham por rota, backdrop, Fechar e Escape e confirmam restauração de foco e aria-expanded
 
 ## Bloco 16 — Agenda mobile e filtros ativos
 
