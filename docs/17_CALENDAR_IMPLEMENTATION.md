@@ -254,3 +254,7 @@ Ao final desta sprint, o usuario consegue clicar em `Adicionar ao calendario` e 
 - a acao precisa ser reconhecivel em menos de um segundo de leitura;
 - o layout deve continuar limpo no desktop e compacto no mobile;
 - o card mobile deve continuar escaneavel sem quebrar a hierarquia das informacoes.
+
+## 14. Status da implementação
+
+Implementação concluída no Bloco 19. A entrega usa download local de `.ics` no navegador, sem depender de upload remoto, com contrato de evento, feedback de sucesso/erro, proteção para dados incompletos e testes direcionados de domínio e interface.

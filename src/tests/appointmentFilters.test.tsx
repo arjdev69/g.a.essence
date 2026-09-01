@@ -297,6 +297,23 @@ describe('appointments mobile filters', () => {
     expect(calendarButton?.disabled).toBe(false)
   })
 
+  it('bloqueia o calendario quando faltam dados obrigatorios do atendimento', async () => {
+    vi.mocked(appointmentRepository.list).mockResolvedValueOnce([
+      { ...appointments[0], professionalName: null },
+    ])
+    const container = renderAppointments()
+    await settleQueries()
+
+    const calendarButton = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
+    )
+    expect(calendarButton?.disabled).toBe(true)
+    expect(calendarButton?.getAttribute('title')).toBe(
+      'Dados do atendimento incompletos',
+    )
+    expect(calendarButton?.className).toContain('min-h-11')
+  })
+
   it('starts in the current month and applies search and status without reload', async () => {
     const container = renderAppointments()
     await settleQueries()
