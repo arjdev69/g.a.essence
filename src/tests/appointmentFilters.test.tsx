@@ -263,6 +263,7 @@ describe('appointments mobile filters', () => {
       '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
     )
     expect(calendarButton).not.toBeNull()
+    expect(calendarButton?.className).toContain('min-h-11')
 
     act(() => calendarButton?.click())
     await settleQueries()
@@ -275,6 +276,25 @@ describe('appointments mobile filters', () => {
       }),
     )
     expect(container.textContent).toContain('baixado')
+  })
+
+  it('anuncia falha do download e mantém a ação disponível para nova tentativa', async () => {
+    vi.mocked(downloadFile).mockImplementationOnce(() => {
+      throw new Error('download failed')
+    })
+    const container = renderAppointments()
+    await settleQueries()
+
+    const calendarButton = container.querySelector<HTMLButtonElement>(
+      '[aria-label="Adicionar atendimento de Maria Silva ao calendario"]',
+    )
+    act(() => calendarButton?.click())
+    await settleQueries()
+
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain(
+      'Tente novamente',
+    )
+    expect(calendarButton?.disabled).toBe(false)
   })
 
   it('starts in the current month and applies search and status without reload', async () => {
@@ -434,6 +454,10 @@ describe('appointments mobile filters', () => {
 
     const menu = container.querySelector('[role="menu"]')
     expect(actionsTrigger?.getAttribute('aria-expanded')).toBe('true')
+    expect(menu?.getAttribute('aria-label')).toBe('Ações para Maria Silva')
+    expect(
+      menu?.querySelector('[aria-label="Adicionar atendimento de Maria Silva ao calendario"]')?.className,
+    ).toContain('min-h-11')
     expect(menu?.textContent).toContain('Adicionar ao calendario')
     expect(menu?.textContent).toContain('Remover')
 

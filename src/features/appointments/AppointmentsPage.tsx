@@ -168,6 +168,7 @@ function CalendarCalendarButton({
       className={`min-h-11 ${className ?? ''}`}
       disabled={isCalendarDisabled}
       icon={<CalendarDays className="h-4 w-4" aria-hidden="true" />}
+      aria-busy={isExporting}
       onClick={() => onClick(appointment)}
       role={role}
       size="sm"
@@ -286,6 +287,7 @@ function AppointmentCardActions({
         {isMenuOpen ? (
           <div
             className="absolute right-0 top-full z-20 mt-2 w-56 rounded-lg border border-stone-200 bg-white p-1 shadow-lg"
+            aria-label={`Ações para ${subject}`}
             role="menu"
           >
             <CalendarCalendarButton
@@ -774,7 +776,7 @@ export function AppointmentsPage({
               ? 'border-red-200 bg-red-50 p-4'
               : 'border-emerald-200 bg-emerald-50 p-4'
           }
-          role="status"
+          role={calendarErrorMessage ? 'alert' : 'status'}
           aria-live="polite"
         >
           <p
