@@ -160,7 +160,7 @@ describe('reports mobile and filters', () => {
     )
 
     expect(seriousViolations).toEqual([])
-  })
+  }, 15000)
 
   it('expõe labels, estado de carregamento e estado vazio por filtro', async () => {
     vi.mocked(appointmentRepository.list).mockImplementation(

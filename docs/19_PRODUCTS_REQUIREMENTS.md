@@ -164,7 +164,11 @@ Sinalizar produtos com dados pendentes quando:
 
 ### RF-118 Filtros
 
-Permitir filtrar por nome, tamanho, categoria, status, estoque baixo, dados pendentes e periodo de movimentacao.
+Permitir filtrar por nome, tamanho, categoria, status, estoque baixo, dados pendentes,
+pagamento pendente (fiado) e periodo de movimentacao.
+
+O filtro de pagamento pendente deve considerar produtos com ao menos uma venda
+com recebimento `pending` ou `partial`, ou seja, com saldo ainda em aberto.
 
 ### RF-119 Navegacao de modulo
 
@@ -272,6 +276,7 @@ Permitir exportar a listagem ou resumo de produtos em CSV com separador `;`.
 - exibir valor em estoque;
 - exibir alerta visual quando saldo estiver baixo;
 - sinalizar produto com preco aberto;
+- filtrar produtos com venda em pagamento pendente (fiado);
 - manter historico de movimentos por produto;
 - inativar produto sem perder informacoes;
 - exportar resumo em CSV.

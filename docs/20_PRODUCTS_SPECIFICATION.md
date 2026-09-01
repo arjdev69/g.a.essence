@@ -118,6 +118,8 @@ export type StockMovement = {
 - produto com `salePriceOpen = true` deve exigir preco unitario maior que zero no momento da venda;
 - produto com `averageCost = null` nao pode ser vendido ate o custo ser definido;
 - cada venda possui uma unica forma de pagamento no MVP da secao;
+- o filtro `paymentPending` deve considerar somente movimentos `sale` com
+  `receiptStatus = 'pending'` ou `receiptStatus = 'partial'`;
 - venda gera receita, custo e lucro bruto;
 - venda congela o custo medio vigente no movimento para preservar historico;
 - uso interno, perda e ajuste nao geram receita;

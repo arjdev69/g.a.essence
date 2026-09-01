@@ -109,6 +109,7 @@ Elementos:
 - select de status;
 - select de estoque baixo;
 - select de dados pendentes;
+- select de pagamento pendente (fiado);
 - periodo inicial;
 - periodo final;
 - botao `Limpar`.

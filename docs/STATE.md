@@ -28,12 +28,12 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 20 — Reconciliação do PR #2 / fluxo de Produtos
-- **Tasks do escopo**: TASK-P000–TASK-P041 em `docs/26_PRODUCTS_TASKS.md` (fonte do PR #2); integração do PR e preservação da UX mobile atual
-- **Tasks concluídas neste bloco**: T-PR2, TASK-P035 e TASK-P036
+- **Bloco atual**: 21 — Filtro de pagamento pendente (fiado) em Produtos
+- **Tasks do escopo**: TASK-P042 em `docs/26_PRODUCTS_TASKS.md`; filtro de vendas `pending` ou `partial` na listagem/exportação, preservando a UX mobile atual
+- **Tasks concluídas neste bloco**: TASK-P042
 - **Em andamento (arquivo:linha)**: nenhum
 - **Próximo passo**: congelar o tip validado e integrar localmente em `develop` com `merge --no-ff`
-- **Validação**: POST-007-1 aprovado — `npm test` (18 arquivos aprovados, 1 arquivo de integração pulado; 149 testes aprovados, 10 pulados), `npm run lint` e `npm run build` passaram; o build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes registram os avisos de canvas não implementado no jsdom
+- **Validação**: POST-008-2 aprovado — `npm test` (19 arquivos aprovados, 1 arquivo de integração pulado; 151 testes aprovados, 10 pulados), `npm run lint` e `npm run build` passaram; o build mantém apenas o aviso conhecido de bundle acima de 500 kB e os testes registram os avisos de canvas não implementado no jsdom
 - **Tentativas de baseline pré-task**: PRE-007-1 → aprovado: `npm test` (14 arquivos, 78 testes), `npm run lint` e `npm run build`
 - **Baseline inicial do bloco**: PRE-007-1 aprovado
 - **Rebaselines de comando**: nenhum
@@ -41,12 +41,12 @@ STATE_SCHEMA: 3
 - **Modo Gitflow**: feature
 - **Branch de produção**: main
 - **Branch de integração**: develop
-- **Branch de trabalho**: feature/bloco-20-produtos
-- **Base da branch (SHA)**: d75aff320d2806c52526a0a823aecf18686f5351
-- **Último commit de task validado**: 805ee36
+- **Branch de trabalho**: feature/pagamento-pendente
+- **Base da branch (SHA)**: 0a0cb29f52ae01edce8b3f7e1c3dc7705b40e965
+- **Último commit de task validado**: 3ba9b20
 - **Estado da integração**: ready-for-merge
 - **Tip congelado para integração**: nenhum
 - **Arquivos dirty esperados**: nenhum
 - **Operação Git pendente**: none
 - **Push**: não solicitado
-- **Motivo da parada**: bloco implementado e validado; aguardando merge local em `develop`
+- **Motivo da parada**: filtro implementado e validado; aguardando merge local em `develop`

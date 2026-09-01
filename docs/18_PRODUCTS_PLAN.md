@@ -98,7 +98,7 @@ Incluido:
 - lucro bruto por produto;
 - alerta visual de estoque baixo;
 - historico de movimentacoes;
-- filtros por produto, tamanho, categoria, status, estoque baixo e periodo.
+- filtros por produto, tamanho, categoria, status, estoque baixo, pagamento pendente (fiado) e periodo.
 
 Fora do escopo inicial:
 

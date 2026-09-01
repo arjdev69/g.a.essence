@@ -39,6 +39,7 @@ const productSelect = `
 `
 
 const productStatuses = ['active', 'inactive'] as const satisfies readonly ProductStatus[]
+const pendingReceiptStatuses = ['pending', 'partial'] as const
 
 function addMoney(total: number, value: number) {
   return Number((total + value).toFixed(2))
@@ -263,13 +264,38 @@ export const productRepository = {
       )
     }
 
-    const { data, error } = await query
+    const pendingPaymentQuery = filters.paymentPending
+      ? supabaseClient
+          .from('stock_movements')
+          .select('product_id')
+          .eq('type', 'sale')
+          .in('receipt_status', [...pendingReceiptStatuses])
+      : null
+
+    const [productsResult, pendingPaymentResult] = await Promise.all([
+      query,
+      pendingPaymentQuery,
+    ])
+
+    const { data, error } = productsResult
 
     if (error) {
       throw error
     }
 
-    const products = data.map(toProductDTO)
+    if (pendingPaymentResult?.error) {
+      throw pendingPaymentResult.error
+    }
+
+    const pendingPaymentProductIds = new Set(
+      (pendingPaymentResult?.data ?? []).map((movement) => movement.product_id),
+    )
+    const products = data
+      .map(toProductDTO)
+      .filter(
+        (product) =>
+          !filters.paymentPending || pendingPaymentProductIds.has(product.id),
+      )
 
     if (filters.lowStock) {
       return products.filter(
