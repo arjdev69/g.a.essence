@@ -28,7 +28,7 @@ function getDesktopNavLinkClass({ isActive }: { isActive: boolean }) {
 
 function getMobileNavLinkClass({ isActive }: { isActive: boolean }) {
   return [
-    'flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
+    'flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2',
     isActive
       ? 'bg-emerald-50 font-medium text-emerald-800'
       : 'text-zinc-800',
@@ -45,7 +45,10 @@ export function MainMenu({
   const isDesktop = variant === 'desktop'
 
   return (
-    <nav aria-label="Principal" className={isDesktop ? 'flex-1 p-4' : ''}>
+    <nav
+      aria-label="Principal"
+      className={isDesktop ? 'flex-1 p-4' : 'min-h-0 flex-1 overflow-y-auto p-4'}
+    >
       <ul
         className={
           isDesktop
