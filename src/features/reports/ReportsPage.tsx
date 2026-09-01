@@ -3,16 +3,17 @@ import {
   CalendarCheck,
   CalendarDays,
   CircleDollarSign,
-  Gift,
+  X,
   UserRoundX,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '../../components/ui/Badge'
 import { Card } from '../../components/ui/Card'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ErrorState } from '../../components/ui/ErrorState'
 import { LoadingState } from '../../components/ui/LoadingState'
+import { Button } from '../../components/ui/Button'
 import { Select } from '../../components/ui/Select'
 import {
   Table,
@@ -30,11 +31,15 @@ import {
 import { appointmentRepository } from '../../repositories/appointment.repository'
 import { professionalRepository } from '../../repositories/professional.repository'
 import { serviceRepository } from '../../repositories/service.repository'
+import { getAppointmentMonthRange } from '../../utils/appointmentPeriod'
 import { formatCurrencyBRL } from '../../utils/formatCurrencyBRL'
 
 type ReportsPageProps = {
+  clearFiltersRequest?: number
   exportRequest?: number
 }
+
+type ReportStatusFilter = AppointmentStatus | 'all'
 
 function getCurrentReportDate(date = new Date()) {
   return {
@@ -90,6 +95,18 @@ const statusLabels: Record<AppointmentStatus, string> = {
   scheduled: 'Agendado',
 }
 
+const statusOptions: Array<{
+  label: string
+  value: ReportStatusFilter
+}> = [
+  { label: 'Todos os status', value: 'all' },
+  { label: statusLabels.scheduled, value: 'scheduled' },
+  { label: statusLabels.completed, value: 'completed' },
+  { label: statusLabels.paid, value: 'paid' },
+  { label: statusLabels.cancelled, value: 'cancelled' },
+  { label: statusLabels.no_show, value: 'no_show' },
+]
+
 function formatDate(date: string) {
   const [year, month, day] = date.split('-')
 
@@ -106,6 +123,26 @@ function formatTime(time: string) {
 
 function formatOptional(value: string | null | undefined) {
   return value?.trim() ? value : '-'
+}
+
+function ActiveFilterChip({
+  label,
+  onRemove,
+}: {
+  label: string
+  onRemove: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={`Remover filtro ${label}`}
+      className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+      onClick={onRemove}
+    >
+      <span>{label}</span>
+      <X className="h-3.5 w-3.5" aria-hidden="true" />
+    </button>
+  )
 }
 
 function SummaryMetric({
@@ -143,26 +180,57 @@ function downloadCsv(filename: string, content: string) {
   URL.revokeObjectURL(url)
 }
 
-export function ReportsPage({ exportRequest }: ReportsPageProps) {
+export function ReportsPage({
+  clearFiltersRequest,
+  exportRequest,
+}: ReportsPageProps) {
+  const previousClearFiltersRequestRef = useRef(clearFiltersRequest)
   const previousExportRequestRef = useRef(exportRequest)
   const currentDate = useMemo(() => getCurrentReportDate(), [])
   const [month, setMonth] = useState(currentDate.month)
   const [year, setYear] = useState(currentDate.year)
   const [professionalId, setProfessionalId] = useState('all')
   const [serviceId, setServiceId] = useState('all')
+  const [status, setStatus] = useState<ReportStatusFilter>('all')
   const yearOptions = useMemo(
     () => getYearOptions(Number(currentDate.year)),
     [currentDate.year],
+  )
+  const reportDateRange = useMemo(
+    () => getAppointmentMonthRange(Number(year), Number(month)),
+    [month, year],
   )
   const reportInput = useMemo(
     () => ({
       month: Number(month),
       professionalId: professionalId === 'all' ? undefined : professionalId,
       serviceId: serviceId === 'all' ? undefined : serviceId,
+      status: status === 'all' ? undefined : status,
       year: Number(year),
     }),
-    [month, professionalId, serviceId, year],
+    [month, professionalId, serviceId, status, year],
   )
+
+  const resetFilters = useCallback(() => {
+    setMonth(currentDate.month)
+    setYear(currentDate.year)
+    setProfessionalId('all')
+    setServiceId('all')
+    setStatus('all')
+  }, [currentDate.month, currentDate.year])
+
+  useEffect(() => {
+    if (
+      clearFiltersRequest === undefined ||
+      clearFiltersRequest === previousClearFiltersRequestRef.current
+    ) {
+      previousClearFiltersRequestRef.current = clearFiltersRequest
+      return
+    }
+
+    resetFilters()
+    previousClearFiltersRequestRef.current = clearFiltersRequest
+  }, [clearFiltersRequest, resetFilters])
 
   const {
     data: professionals = [],
@@ -190,15 +258,15 @@ export function ReportsPage({ exportRequest }: ReportsPageProps) {
     queryKey: [
       'appointments',
       'monthly-report',
-      {
-        professionalId: reportInput.professionalId,
-        serviceId: reportInput.serviceId,
-      },
+      reportInput,
     ],
     queryFn: () =>
       appointmentRepository.list({
+        dateFrom: reportDateRange.dateFrom,
+        dateTo: reportDateRange.dateTo,
         professionalId: reportInput.professionalId,
         serviceId: reportInput.serviceId,
+        status: reportInput.status,
       }),
   })
 
@@ -230,31 +298,92 @@ export function ReportsPage({ exportRequest }: ReportsPageProps) {
 
   return (
     <div className="space-y-4">
-      <section className="grid gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-label="Filtros do relatório"
+        className="grid gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-5"
+      >
         <Select
+          className="min-h-11 text-base sm:text-sm"
+          id="report-month"
           label="Mes"
           onChange={(event) => setMonth(event.target.value)}
           options={monthOptions}
           value={month}
         />
         <Select
+          className="min-h-11 text-base sm:text-sm"
+          id="report-year"
           label="Ano"
           onChange={(event) => setYear(event.target.value)}
           options={yearOptions}
           value={year}
         />
         <Select
+          className="min-h-11 text-base sm:text-sm"
+          id="report-professional"
           label="Profissional"
           onChange={(event) => setProfessionalId(event.target.value)}
           options={toFilterOptions('Todos os profissionais', professionals)}
           value={professionalId}
         />
         <Select
+          className="min-h-11 text-base sm:text-sm"
+          id="report-service"
           label="Servico"
           onChange={(event) => setServiceId(event.target.value)}
           options={toFilterOptions('Todos os servicos', services)}
           value={serviceId}
         />
+        <Select
+          className="min-h-11 text-base sm:text-sm"
+          id="report-status"
+          label="Status"
+          onChange={(event) =>
+            setStatus(event.target.value as ReportStatusFilter)
+          }
+          options={statusOptions}
+          value={status}
+        />
+      </section>
+
+      <section
+        aria-label="Filtros ativos"
+        className="flex flex-wrap items-center gap-2"
+      >
+        <span className="mr-1 text-sm font-medium text-zinc-600">
+          Filtros ativos:
+        </span>
+        <ActiveFilterChip
+          label={`Período: ${monthOptions.find((option) => option.value === month)?.label} ${year}`}
+          onRemove={() => {
+            setMonth(currentDate.month)
+            setYear(currentDate.year)
+          }}
+        />
+        {status !== 'all' ? (
+          <ActiveFilterChip
+            label={`Status: ${statusLabels[status]}`}
+            onRemove={() => setStatus('all')}
+          />
+        ) : null}
+        {professionalId !== 'all' ? (
+          <ActiveFilterChip
+            label={`Profissional: ${formatOptional(
+              professionals.find(
+                (professional) => professional.id === professionalId,
+              )?.name,
+            )}`}
+            onRemove={() => setProfessionalId('all')}
+          />
+        ) : null}
+        {serviceId !== 'all' ? (
+          <ActiveFilterChip
+            label={`Serviço: ${formatOptional(
+              services.find((service) => service.id === serviceId)?.name,
+            )}`}
+            onRemove={() => setServiceId('all')}
+          />
+        ) : null}
       </section>
 
       {hasReportError ? (
@@ -269,7 +398,11 @@ export function ReportsPage({ exportRequest }: ReportsPageProps) {
       ) : null}
 
       {!isLoadingReport && !hasReportError ? (
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section
+          aria-label="Indicadores do relatório"
+          aria-live="polite"
+          className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6"
+        >
           <SummaryMetric
             icon={<CircleDollarSign className="h-5 w-5" aria-hidden="true" />}
             label="Faturamento"
@@ -277,18 +410,28 @@ export function ReportsPage({ exportRequest }: ReportsPageProps) {
           />
           <SummaryMetric
             icon={<CalendarCheck className="h-5 w-5" aria-hidden="true" />}
-            label="Atendimentos"
-            value={String(summary.appointmentCount)}
+            label="Total no período"
+            value={String(summary.totalCount)}
+          />
+          <SummaryMetric
+            icon={<CalendarCheck className="h-5 w-5" aria-hidden="true" />}
+            label="Atendimentos financeiros"
+            value={String(summary.financialCount)}
+          />
+          <SummaryMetric
+            icon={<CircleDollarSign className="h-5 w-5" aria-hidden="true" />}
+            label="Receita clínica"
+            value={formatCurrencyBRL(summary.totalClinicRevenue)}
+          />
+          <SummaryMetric
+            icon={<CircleDollarSign className="h-5 w-5" aria-hidden="true" />}
+            label="Ganho profissional"
+            value={formatCurrencyBRL(summary.totalProfessionalRevenue)}
           />
           <SummaryMetric
             icon={<UserRoundX className="h-5 w-5" aria-hidden="true" />}
             label="Cancelados / faltas"
             value={`${summary.cancelledCount} / ${summary.noShowCount}`}
-          />
-          <SummaryMetric
-            icon={<Gift className="h-5 w-5" aria-hidden="true" />}
-            label="Brindes"
-            value={String(summary.giftCount)}
           />
         </section>
       ) : null}
@@ -450,8 +593,13 @@ export function ReportsPage({ exportRequest }: ReportsPageProps) {
       {!isLoadingReport && !hasReportError ? (
         summary.rows.length === 0 ? (
           <EmptyState
+            action={
+              <Button onClick={resetFilters} variant="secondary">
+                Limpar filtros
+              </Button>
+            }
             description="Ajuste os filtros para consultar outro periodo."
-            title="Nenhum atendimento encontrado."
+            title="Nenhum atendimento encontrado para estes filtros."
           />
         ) : (
           <>
