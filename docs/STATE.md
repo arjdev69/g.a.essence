@@ -28,21 +28,21 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 14 — Contratos de período e relatório (concluído; ready-for-merge)
-- **Tasks concluídas neste bloco**: T-062, T-063, T-064, T-065
+- **Bloco atual**: 15 — Navegação mobile sem sobreposição (concluído; ready-for-merge)
+- **Tasks concluídas neste bloco**: T-066, T-067
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: congelar a ponta e integrar o Bloco 14 em `develop` com merge local `--no-ff`
-- **Validação**: POST-001 aprovado — `npm test` (7 arquivos, 48 testes), `npm run build` e `npm run lint` passaram; build mantém apenas o aviso conhecido de bundle acima de 500 kB
-- **Tentativas de baseline pré-task**: PRE-001 → 161f446ec0aca25011c13552bca435619f342257 → `npm test`; `npm run build`; `npm run lint` → aprovado: 6 arquivos/30 testes, build e lint sem erros
-- **Baseline inicial do bloco**: PRE-001 aprovado
+- **Próximo passo**: congelar a ponta e integrar o Bloco 15 em `develop` com merge local `--no-ff`
+- **Validação**: POST-002 aprovado — `npm test` (8 arquivos, 51 testes), `npm run build` e `npm run lint` passaram; build mantém apenas o aviso conhecido de bundle acima de 500 kB; navegador local alcançou `/login` e a interação autenticada foi validada no DOM com jsdom
+- **Tentativas de baseline pré-task**: PRE-002 → 8ba9e95a4354e0df3ef2ad9523ae85a068d1919e → `npm test`; `npm run build`; `npm run lint` → aprovado: 7 arquivos/48 testes, build e lint sem erros
+- **Baseline inicial do bloco**: PRE-002 aprovado
 - **Rebaselines de comando**: nenhum
 - **Bloqueios**: nenhum
 - **Modo Gitflow**: feature
 - **Branch de produção**: main
 - **Branch de integração**: develop
-- **Branch de trabalho**: feature/bloco-14-contratos-periodo-relatorio
-- **Base da branch (SHA)**: 161f446ec0aca25011c13552bca435619f342257
-- **Último commit de task validado**: 3533f1b45b8d35bdd5a9d0870e769963fc1d3e5b
+- **Branch de trabalho**: feature/bloco-15-navegacao-mobile
+- **Base da branch (SHA)**: 8ba9e95a4354e0df3ef2ad9523ae85a068d1919e
+- **Último commit de task validado**: d1ad53fb6d375a9c1b2ac49c0fd0660ea7f80f2b
 - **Estado da integração**: ready-for-merge
 - **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
 - **Arquivos dirty esperados**: nenhum
