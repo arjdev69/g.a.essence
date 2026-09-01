@@ -24,17 +24,21 @@ function PageAction({
   label,
   isReport,
   onClick,
+  onSecondaryClick,
 }: {
   label: string
   isReport: boolean
   onClick?: () => void
+  onSecondaryClick?: () => void
 }) {
   if (isReport) {
     return (
       <div className="flex gap-3">
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-md border border-stone-300 bg-white px-4 text-sm font-medium text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+          aria-label="Limpar filtros"
+          onClick={onSecondaryClick}
+          className="inline-flex min-h-11 items-center gap-2 rounded-md border border-stone-300 bg-white px-4 text-sm font-medium text-zinc-800 transition hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
         >
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">Limpar filtros</span>
@@ -42,7 +46,8 @@ function PageAction({
         <button
           type="button"
           onClick={onClick}
-          className="inline-flex h-10 items-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+          aria-label={label}
+          className="inline-flex min-h-11 items-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
         >
           <Download className="h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">{label}</span>
@@ -216,6 +221,7 @@ function ServicesRoute() {
 }
 
 function ReportsRoute() {
+  const [clearFiltersRequest, setClearFiltersRequest] = useState(0)
   const [exportRequest, setExportRequest] = useState(0)
 
   return (
@@ -227,10 +233,16 @@ function ReportsRoute() {
             label="Exportar CSV"
             isReport
             onClick={() => setExportRequest((current) => current + 1)}
+            onSecondaryClick={() =>
+              setClearFiltersRequest((current) => current + 1)
+            }
           />
         }
       >
-        <ReportsPage exportRequest={exportRequest} />
+        <ReportsPage
+          clearFiltersRequest={clearFiltersRequest}
+          exportRequest={exportRequest}
+        />
       </AppLayout>
     </ProtectedRoute>
   )

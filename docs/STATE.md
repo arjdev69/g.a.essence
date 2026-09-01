@@ -28,21 +28,21 @@ STATE_SCHEMA: 3
 ## Handoff
 
 - **Projeto**: G.A Essência / C:\Users\ARJ\Favorites\Develloper\AgendaGA
-- **Bloco atual**: 16 — Agenda mobile e filtros ativos (concluído; ready-for-merge)
-- **Tasks concluídas neste bloco**: T-068, T-069, T-070
+- **Bloco atual**: 17 — Relatório coerente por status (concluído; ready-for-merge)
+- **Tasks concluídas neste bloco**: T-071, T-072, T-073
 - **Em andamento (arquivo:linha)**: nenhum
-- **Próximo passo**: congelar a ponta e integrar o Bloco 16 em `develop` com merge local `--no-ff`
-- **Validação**: POST-003 aprovado — `npm test` (10 arquivos, 57 testes), `npm run build` e `npm run lint` passaram; build mantém apenas o aviso conhecido de bundle acima de 500 kB; inspeção visual local alcançou `/login` sem credenciais e os fluxos autenticados foram validados via DOM com jsdom
-- **Tentativas de baseline pré-task**: PRE-003 → 90d5c360c7ce6b54593b047b8c9fd8be640b84c7 → `npm test`; `npm run build`; `npm run lint` → aprovado: 8 arquivos/51 testes, build e lint sem erros
-- **Baseline inicial do bloco**: PRE-003 aprovado
+- **Próximo passo**: congelar a ponta e integrar o Bloco 17 em `develop` com merge local `--no-ff`
+- **Validação**: POST-004 aprovado — `npm test` (11 arquivos, 63 testes), `npm run build` e `npm run lint` passaram; axe não apontou violações critical/serious; build mantém apenas o aviso conhecido de bundle acima de 500 kB e o teste axe no jsdom registra o aviso de canvas não implementado; inspeção visual local permanece limitada a `/login` sem credenciais
+- **Tentativas de baseline pré-task**: PRE-004 → cb25b9319f9702650ae96cb1a1f55646435cd4d4 → `npm test`; `npm run build`; `npm run lint` → aprovado: 10 arquivos/57 testes, build e lint sem erros
+- **Baseline inicial do bloco**: PRE-004 aprovado
 - **Rebaselines de comando**: nenhum
 - **Bloqueios**: nenhum
 - **Modo Gitflow**: feature
 - **Branch de produção**: main
 - **Branch de integração**: develop
-- **Branch de trabalho**: feature/bloco-16-agenda-mobile
-- **Base da branch (SHA)**: 90d5c360c7ce6b54593b047b8c9fd8be640b84c7
-- **Último commit de task validado**: 3de45feda82c80c70cd8f0e691cd9c16bf98f464
+- **Branch de trabalho**: feature/bloco-17-relatorio-status
+- **Base da branch (SHA)**: cb25b9319f9702650ae96cb1a1f55646435cd4d4
+- **Último commit de task validado**: 80fb3dbc10675319e864a47486dafa219c9b67ca
 - **Estado da integração**: ready-for-merge
 - **Tip congelado para integração**: ponta deste commit de estado, registrada no histórico após o commit
 - **Arquivos dirty esperados**: nenhum
